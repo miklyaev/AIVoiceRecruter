@@ -139,3 +139,9 @@ docker compose up -d --build
 # 5. Перезагрузить nginx VDS:
 sudo nginx -t && sudo systemctl reload nginx
 ```
+
+### UPD: Использование существующего PostgreSQL (jira_clone_db)
+- Из `docker-compose.yml` удалён сервис `postgres` и volume `postgres_data`
+- Backend подключается к PostgreSQL на хосте через `host.docker.internal:5432`
+- Добавлен `extra_hosts: - "host.docker.internal:host-gateway"` для Linux Docker
+- `DATABASE_URL` изменён на `postgresql://postgres:dasha2009@host.docker.internal:5432/ai_recruiter`

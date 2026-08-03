@@ -1,25 +1,4 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: ai-recruiter-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ai_recruiter
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dasha2009}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    networks:
-      - ai-recruiter-net
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ai_recruiter"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
   backend:
     build:
       context: ./server
@@ -29,16 +8,15 @@ services:
     env_file:
       - ./server/.env
     environment:
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-dasha2009}@postgres:5432/ai_recruiter
+      - DATABASE_URL=postgresql://DB_USER_NAME:DB_PASSWORD@host.docker.internal:5432/ai_recruiter
       - CORS_ORIGIN=https://recruter.ai-nvkz.ru
       - PORT=3000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "3000:3000"
     volumes:
       - backend_audio:/app/audio
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
       - ai-recruiter-net
 
@@ -56,8 +34,6 @@ services:
       - ai-recruiter-net
 
 volumes:
-  postgres_data:
-    driver: local
   backend_audio:
     driver: local
 

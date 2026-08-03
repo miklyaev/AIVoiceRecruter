@@ -165,6 +165,87 @@ cd server
 npm start
 ```
 
+## Запуск через Docker
+
+Приложение запускается через Docker Compose — поднимаются backend и frontend. PostgreSQL используется существующий (контейнер `jira_clone_db` на том же хосте).
+
+### Требования
+
+- Docker Engine 24+ и Docker Compose v2 (или Docker Desktop)
+- Сервер с установленным Docker (VDS или локальная машина)
+- Запущенный контейнер PostgreSQL (например, `jira_clone_db` на порту 5432)
+
+### Настройка
+
+1. Создайте базу данных `ai_recruiter` в существующем PostgreSQL:
+
+```sql
+CREATE DATABASE ai_recruiter;
+```
+
+2. Убедитесь, что в `server/.env` заполнены все переменные:
+
+```env
+DATABASE_URL=postgresql://DB_USER_NAME:DB_PASSWORD@host.docker.internal:5432/ai_recruiter
+PORT=3000
+CORS_ORIGIN=https://recruter.ai-nvkz.ru
+ROUTERAI_LLM_MODEL=openai/gpt-5.6-luna
+ROUTERAI_STT_MODEL=x-ai/grok-stt-1.0
+ROUTERAI_TTS_MODEL=microsoft/mai-voice-2-flash
+ROUTERAI_TTS_VOICE=ru-RU-Masha:MAI-Voice-2-Flash
+APP_ENCRYPTION_KEY=<ваш-ключ-32-байта-в-hex>
+```
+
+   > **Важно:** В Docker `DATABASE_URL` использует `host.docker.internal`, чтобы подключиться к PostgreSQL на хосте.
+
+3. Убедитесь, что порт `3000` (backend) свободен.
+
+### Запуск
+
+```bash
+# Собрать и запустить все сервисы
+docker compose up -d --build
+```
+
+После запуска:
+- **Frontend**: `http://localhost:5173`
+- **Backend API**: `http://localhost:3000`
+
+### Просмотр логов
+
+```bash
+docker compose logs -f        # все сервисы
+docker compose logs -f backend # только backend
+docker compose logs -f frontend # только frontend
+```
+
+### Остановка
+
+```bash
+docker compose down          # остановить и удалить контейнеры
+docker compose down -v       # остановить и удалить контейнеры вместе с volumes (данные БД в `backend_audio` будут потеряны)
+```
+
+### Архитектура Docker
+
+```
+┌──────────┐     ┌──────────┐     ┌──────────────────────┐
+│  Nginx   │     │  Backend │     │  PostgreSQL          │
+│ (VDS)    │───▶│ (Express) │───▶│  (jira_clone_db)     │
+│ :443     │     │ :3000    │     │  :5432 на хосте      │
+└────┬─────┘     └──────────┘     └──────────────────────┘
+     │            ┌──────────┐
+     └──────────▶│  Nginx    │
+                  │ (static)  │
+                  │ :80       │
+                  └──────────┘
+```
+
+- Внешний nginx на VDS проксирует `/api/` на backend (:3000), а всё остальное — на frontend (:5173).
+- Backend подключается к существующему PostgreSQL через `host.docker.internal:5432` (контейнер `jira_clone_db` на хосте).
+- Frontend-контейнер использует собственный nginx для раздачи статики (SPA fallback).
+- Контейнеры общаются через внутреннюю bridge-сеть `ai-recruiter-net`.
+
 ## Документация RouterAI
 
 - [Документация RouterAI](https://routerai.ru/docs/guides)

@@ -62,13 +62,6 @@ const App: React.FC = () => {
     restartInterview();
   }, [audioRecorder, restartInterview]);
 
-  // Show settings modal when API key is required
-  useEffect(() => {
-    if (state === 'API_KEY_REQUIRED' && !settingsOpen) {
-      // Don't auto-open, just show the state
-    }
-  }, [state]);
-
   const isProcessing = ['TRANSCRIBING', 'ANALYZING', 'SYNTHESIZING', 'STARTING'].includes(state);
 
   return (

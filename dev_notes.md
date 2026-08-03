@@ -36,7 +36,6 @@
 - Ошибка TTS не прерывает текстовое интервью
 - Интервью восстанавливается из localStorage по ID
 - Идемпотентность через x-idempotency-key
-
 ## 03.08.2026 — Исправление TTS (голос агента не воспроизводился)
 
 ### Проблема
@@ -89,3 +88,17 @@
 ### Проверка
 - `x-ai/grok-stt-1.0` возвращает 200 с корректной транскрипцией через `POST /api/v1/audio/transcriptions`
 - Полный API-запрос `POST /api/interviews/:id/answers` возвращает 200 с транскрипцией, следующим вопросом и TTS-аудио
+
+## 03.08.2026 — Code review: удаление мёртвого кода
+
+### Что удалено/исправлено
+- **Мёртвые файлы**: `server/test.mp3`, `server/test_flash.mp3`, `server/test_masha.mp3` — тестовые аудио STT
+- **Мёртвый компонент**: `client/src/components/AudioRecorder.tsx` — не использовался (запись через `useAudioRecorder` в `App.tsx`)
+- **Дубликаты тестов**: корневая `tests/` (6 файлов) — дублировала `server/tests/`
+- **Избыточные скрипты**: `scripts/backend_run.ps1`, `scripts/frontend_run.ps1` — дублировали `package.json` команды
+- **Неиспользуемые импорты**: `getRoleTitle` и `z` в `interview.ts`
+- **Динамический import()**: заменён на статический в `interviews.ts`
+- **Мёртвый код**: `getClient()` в `db/index.ts`, `idempotencyKey` в `processAnswer()`, пустой `useEffect` в `App.tsx`, `timestamp` в типе `Message`
+- **Stale default voice**: `'natasha'` → `'ru-RU-Masha:MAI-Voice-2-Flash'` в `routerai.ts`
+- **Неиспользуемая зависимость**: `uuid`/`@types/uuid` удалены из `server/package.json`
+- **Создан `.env.example`** с шаблоном переменных окружения

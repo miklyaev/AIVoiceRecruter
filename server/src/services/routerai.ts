@@ -104,7 +104,7 @@ export async function audioSpeech(
   config: RouterAIConfig,
   model: string,
   text: string,
-  voice: string = 'natasha'
+  voice: string = 'ru-RU-Masha:MAI-Voice-2-Flash'
 ): Promise<Buffer> {
   const response = await fetch(`${config.baseUrl}/audio/speech`, {
     method: 'POST',

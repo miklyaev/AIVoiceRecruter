@@ -26,7 +26,6 @@ export interface Message {
   questionNumber?: number;
   audioUrl?: string;
   createdAt: string;
-  timestamp?: string;
 }
 
 export interface SettingsStatus {

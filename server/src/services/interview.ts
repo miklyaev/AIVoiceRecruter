@@ -1,6 +1,6 @@
 import { query } from '../db';
 import { chatCompletions, audioTranscriptions, audioSpeech, getConfig } from './routerai';
-import { generateId, getRoleTitle } from '../types';
+import { generateId } from '../types';
 import fs from 'fs';
 import path from 'path';
 import { buildSystemPrompt } from '../prompts/common';
@@ -9,7 +9,7 @@ import { SALES_MANAGER_PROMPT } from '../prompts/sales-manager';
 import { HR_MANAGER_PROMPT } from '../prompts/hr-manager';
 import { MARKETER_PROMPT } from '../prompts/marketer';
 import { ANALYST_PROMPT } from '../prompts/analyst';
-import { LLMResponseSchema, z } from '../schemas';
+import { LLMResponseSchema } from '../schemas';
 
 const ROLE_PROMPTS: Record<string, string> = {
   'python-developer': PYTHON_DEVELOPER_PROMPT,
@@ -158,8 +158,7 @@ export async function generateQuestion(role: string, messages: any[], questionNu
 export async function processAnswer(
   interviewId: string,
   audioBuffer: Buffer,
-  mimeType: string,
-  idempotencyKey?: string
+  mimeType: string
 ): Promise<{
   transcript: string;
   candidateMessage: any;

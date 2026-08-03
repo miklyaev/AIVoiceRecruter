@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import { query } from '../db';
-import { createInterview, getInterview, getMessages, processAnswer, finishInterview } from '../services/interview';
+import { createInterview, getInterview, getMessages, processAnswer, finishInterview, generateQuestion } from '../services/interview';
 import { ROLES } from '../types';
 import { CreateInterviewSchema } from '../schemas';
 import { generateId } from '../types';
@@ -42,7 +42,6 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Generate first question
     const messages = await getMessages(interview.id);
-    const { generateQuestion } = await import('../services/interview');
     const result = await generateQuestion(parsed.role, messages, 1);
 
     const questionMsgId = generateId();
@@ -149,12 +148,10 @@ router.post('/:id/answers', upload.single('audio'), async (req: Request, res: Re
       return res.status(400).json({ error: 'Слишком короткая запись' });
     }
 
-    const idempotencyKey = req.headers['x-idempotency-key'] as string;
     const result = await processAnswer(
       req.params.id,
       req.file.buffer,
-      req.file.mimetype,
-      idempotencyKey
+      req.file.mimetype
     );
 
     return res.json(result);

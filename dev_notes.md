@@ -102,3 +102,40 @@
 - **Stale default voice**: `'natasha'` → `'ru-RU-Masha:MAI-Voice-2-Flash'` в `routerai.ts`
 - **Неиспользуемая зависимость**: `uuid`/`@types/uuid` удалены из `server/package.json`
 - **Создан `.env.example`** с шаблоном переменных окружения
+
+## 03.08.2026 — Единая стилистика промптов
+
+### Что сделано
+- В **server/src/prompts/common.ts** в конец `buildSystemPrompt()` добавлена фраза: «Говори как носитель русского языка, немного с иронией.» — она применяется ко всем системным промптам
+
+## 03.08.2026 — Docker-контейнеризация
+
+### Что сделано
+- **server/Dockerfile**: двухэтапная сборка (node:20-alpine) — builder собирает TypeScript в `dist`, runner запускает продакшн из `dist` под непривилегированным пользователем
+- **client/Dockerfile**: двухэтапная сборка — builder собирает Vite-приложение, runner отдаёт статику через nginx:stable-alpine
+- **client/nginx.conf**: прокси `/api` → `backend:3000`, SPA-fallback на `index.html`, gzip, `client_max_body_size 50m`
+- **docker-compose.yml**: три сервиса в одной bridge-сети `ai-recruiter-net`
+  - `postgres:16-alpine` — БД с volume `postgres_data`, healthcheck, порт 5432
+  - `backend` — сборка из `server/`, env из `server/.env`, volume `backend_audio`, `depends_on` postgres со `condition: service_healthy`, порт 3000
+  - `frontend` — сборка из `client/`, nginx на 80, проброс на 5173
+- Добавлены `server/.dockerignore` и `client/.dockerignore`
+- В `.gitignore`: `/server/audio/*.mp3` → `/server/audio/`
+
+### UPD: client/nginx.conf упрощён
+- Убран прокси `/api` в `client/nginx.conf` — на VDS один nginx, он сам проксирует API на backend
+- `client/nginx.conf` теперь содержит только SPA-fallback (try_files)
+
+### UPD: docker-compose.yml
+- `CORS_ORIGIN` изменён на `https://recruter.ai-nvkz.ru` (переопределяет `server/.env`)
+
+### Как запустить на VDS
+```bash
+# 1. Настроить DNS: A-запись recruter.ai-nvkz.ru → IP сервера
+# 2. Получить SSL-сертификат:
+sudo certbot certonly --nginx -d recruter.ai-nvkz.ru -d www.recruter.ai-nvkz.ru
+# 3. Скопировать server/.env на VDS, заполнить
+# 4. Запустить:
+docker compose up -d --build
+# 5. Перезагрузить nginx VDS:
+sudo nginx -t && sudo systemctl reload nginx
+```

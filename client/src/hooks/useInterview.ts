@@ -24,6 +24,7 @@ interface UseInterviewReturn {
   checkSettings: () => Promise<void>;
   setSettingsStatus: (status: SettingsStatus) => void;
   setError: (error: string | null) => void;
+  setState: (state: AppState) => void;
 }
 
 export function useInterview(): UseInterviewReturn {
@@ -107,10 +108,11 @@ export function useInterview(): UseInterviewReturn {
       setProgress((result.questionNumber / result.plannedQuestionCount) * 100);
 
       const greeting: Message = {
-        id: 'greeting-' + Date.now(),
+        id: result.greetingId,
         role: 'assistant',
         text: `Здравствуйте! Я голосовой AI-рекрутер. Я проведу собеседование на позицию "${roles.find(r => r.id === selectedRole)?.title || selectedRole}", задам несколько вопросов и подготовлю итоговую оценку.`,
         messageType: 'greeting',
+        audioUrl: result.greetingAudioUrl || undefined,
         createdAt: new Date().toISOString(),
       };
 
@@ -118,8 +120,16 @@ export function useInterview(): UseInterviewReturn {
       setState('ASKING');
       setStatusMessage('');
 
-      // Auto-play audio
-      if (result.message.audioUrl) {
+      // Auto-play audio: greeting first, then first question
+      if (result.greetingAudioUrl && result.message.audioUrl) {
+        const qAudioUrl = result.message.audioUrl;
+        const greetingAudio = new Audio(result.greetingAudioUrl);
+        greetingAudio.onended = () => playAudio(qAudioUrl);
+        greetingAudio.play().catch(() => {
+          // Autoplay blocked — play question only
+          playAudio(qAudioUrl);
+        });
+      } else if (result.message.audioUrl) {
         playAudio(result.message.audioUrl);
       }
     } catch (err: any) {
@@ -221,6 +231,10 @@ export function useInterview(): UseInterviewReturn {
     try {
       const result = await api.generateSpeech(interviewId, messageId);
       if (result.audioUrl) {
+        // Update message audioUrl so next click plays cached audio
+        setMessages(prev => prev.map(m =>
+          m.id === messageId ? { ...m, audioUrl: result.audioUrl } : m
+        ));
         playAudio(result.audioUrl);
       }
     } catch (err: any) {
@@ -233,7 +247,7 @@ export function useInterview(): UseInterviewReturn {
     settingsStatus, interviewId, questionNumber, plannedQuestionCount, progress, error,
     setSelectedRole, startInterview, sendAudioResponse,
     finishInterview: finishInterviewFn, restartInterview, generateSpeech, checkSettings,
-    setSettingsStatus, setError,
+    setSettingsStatus, setError, setState,
   };
 }
 

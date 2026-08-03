@@ -54,7 +54,8 @@ router.post('/', async (req: Request, res: Response) => {
     // Update question count
     await query('UPDATE interviews SET question_count = 1 WHERE id = $1', [interview.id]);
 
-    // TTS
+    // TTS for greeting and first question
+    let greetingAudioUrl: string | null = null;
     let audioUrl: string | null = null;
     try {
       const settingsRow = (await query('SELECT * FROM settings WHERE id = 1')).rows[0];
@@ -65,18 +66,35 @@ router.post('/', async (req: Request, res: Response) => {
         );
         if (config) {
           const ttsModel = process.env.ROUTERAI_TTS_MODEL || 'microsoft/mai-voice-2-flash';
-          const ttsVoice = process.env.ROUTERAI_TTS_VOICE || 'natasha';
-          const audioBuf = await audioSpeech(config, ttsModel, result.recruiterMessage, ttsVoice);
+          const ttsVoice = process.env.ROUTERAI_TTS_VOICE || 'ru-RU-Masha:MAI-Voice-2-Flash';
           const audioDir = path.join(__dirname, '..', '..', 'audio');
           if (!fs.existsSync(audioDir)) fs.mkdirSync(audioDir, { recursive: true });
-          const audioFilename = `${questionMsgId}.mp3`;
-          fs.writeFileSync(path.join(audioDir, audioFilename), audioBuf);
-          audioUrl = `/api/audio/${questionMsgId}`;
-          await query('UPDATE messages SET audio_reference = $1 WHERE id = $2', [audioFilename, questionMsgId]);
+
+          // Greeting TTS
+          try {
+            const greetingAudioBuf = await audioSpeech(config, ttsModel, greetingText, ttsVoice);
+            const greetingAudioFilename = `${greetingMsgId}.mp3`;
+            fs.writeFileSync(path.join(audioDir, greetingAudioFilename), greetingAudioBuf);
+            greetingAudioUrl = `/api/audio/${greetingMsgId}.mp3`;
+            await query('UPDATE messages SET audio_reference = $1 WHERE id = $2', [greetingAudioFilename, greetingMsgId]);
+          } catch (err) {
+            console.warn('TTS error on greeting:', (err as Error).message);
+          }
+
+          // First question TTS
+          try {
+            const audioBuf = await audioSpeech(config, ttsModel, result.recruiterMessage, ttsVoice);
+            const audioFilename = `${questionMsgId}.mp3`;
+            fs.writeFileSync(path.join(audioDir, audioFilename), audioBuf);
+            audioUrl = `/api/audio/${questionMsgId}.mp3`;
+            await query('UPDATE messages SET audio_reference = $1 WHERE id = $2', [audioFilename, questionMsgId]);
+          } catch (err) {
+            console.warn('TTS error on first question:', (err as Error).message);
+          }
         }
       }
     } catch (err) {
-      console.warn('TTS error on first question:', (err as Error).message);
+      console.warn('TTS config error:', (err as Error).message);
     }
 
     return res.json({
@@ -84,6 +102,8 @@ router.post('/', async (req: Request, res: Response) => {
       status: 'in_progress',
       questionNumber: 1,
       plannedQuestionCount: parseInt(process.env.INTERVIEW_TARGET_QUESTIONS || '7'),
+      greetingId: greetingMsgId,
+      greetingAudioUrl,
       message: {
         id: questionMsgId,
         role: 'assistant',
@@ -181,7 +201,7 @@ router.post('/:id/messages/:messageId/speech', async (req: Request, res: Respons
     }
 
     const ttsModel = process.env.ROUTERAI_TTS_MODEL || 'microsoft/mai-voice-2-flash';
-    const ttsVoice = process.env.ROUTERAI_TTS_VOICE || 'natasha';
+    const ttsVoice = process.env.ROUTERAI_TTS_VOICE || 'ru-RU-Masha:MAI-Voice-2-Flash';
     const audioBuf = await audioSpeech(config, ttsModel, message.text, ttsVoice);
 
     const audioDir = path.join(__dirname, '..', '..', 'audio');
@@ -190,7 +210,7 @@ router.post('/:id/messages/:messageId/speech', async (req: Request, res: Respons
     fs.writeFileSync(path.join(audioDir, audioFilename), audioBuf);
     await query('UPDATE messages SET audio_reference = $1 WHERE id = $2', [audioFilename, message.id]);
 
-    return res.json({ audioUrl: `/api/audio/${message.id}` });
+    return res.json({ audioUrl: `/api/audio/${message.id}.mp3` });
   } catch (err) {
     console.error('Speech generation error:', err);
     return res.status(500).json({ error: 'Ошибка генерации речи' });

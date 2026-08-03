@@ -41,6 +41,8 @@ export interface CreateInterviewResponse {
   status: string;
   questionNumber: number;
   plannedQuestionCount: number;
+  greetingId: string;
+  greetingAudioUrl: string | null;
   message: Message;
 }
 

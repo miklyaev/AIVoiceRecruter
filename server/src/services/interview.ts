@@ -182,7 +182,7 @@ export async function processAnswer(
   if (!config) throw new Error('API-ключ не настроен');
 
   // 1. STT
-  const sttModel = process.env.ROUTERAI_STT_MODEL || 'openai/whisper-large-v4';
+  const sttModel = process.env.ROUTERAI_STT_MODEL || 'x-ai/grok-stt-1.0';
   const transcript = await audioTranscriptions(config, sttModel, audioBuffer, mimeType);
 
   if (!transcript || transcript.trim().length === 0) {
@@ -221,7 +221,7 @@ export async function processAnswer(
   if (!result.shouldFinish) {
     try {
       const ttsModel = process.env.ROUTERAI_TTS_MODEL || 'microsoft/mai-voice-2-flash';
-      const ttsVoice = process.env.ROUTERAI_TTS_VOICE || 'natasha';
+      const ttsVoice = process.env.ROUTERAI_TTS_VOICE || 'ru-RU-Masha:MAI-Voice-2-Flash';
       const audioBuffer = await audioSpeech(config, ttsModel, result.recruiterMessage, ttsVoice);
 
       const audioDir = path.join(__dirname, '..', '..', 'audio');
@@ -230,7 +230,7 @@ export async function processAnswer(
       }
       const audioFilename = `${recruiterMsgId}.mp3`;
       fs.writeFileSync(path.join(audioDir, audioFilename), audioBuffer);
-      audioUrl = `/api/audio/${recruiterMsgId}`;
+      audioUrl = `/api/audio/${recruiterMsgId}.mp3`;
 
       // Update audio reference
       await query('UPDATE messages SET audio_reference = $1 WHERE id = $2', [audioFilename, recruiterMsgId]);

@@ -29,7 +29,7 @@
 | Компонент | Endpoint | Модель |
 |-----------|----------|--------|
 | LLM | `POST /api/v1/chat/completions` | `openai/gpt-5.6-luna` |
-| STT | `POST /api/v1/audio/transcriptions` | `openai/whisper-large-v4` |
+| STT | `POST /api/v1/audio/transcriptions` | `x-ai/grok-stt-1.0` |
 | TTS | `POST /api/v1/audio/speech` | `microsoft/mai-voice-2-flash` |
 
 ### Поддерживаемые аудиоформаты
@@ -78,9 +78,9 @@ ROUTERAI_BASE_URL=https://routerai.ru/api/v1
 
 # Модели RouterAI
 ROUTERAI_LLM_MODEL=openai/gpt-5.6-luna
-ROUTERAI_STT_MODEL=openai/whisper-large-v4
+ROUTERAI_STT_MODEL=x-ai/grok-stt-1.0
 ROUTERAI_TTS_MODEL=microsoft/mai-voice-2-flash
-ROUTERAI_TTS_VOICE=natasha
+ROUTERAI_TTS_VOICE=ru-RU-Masha:MAI-Voice-2-Flash
 
 # Шифрование
 APP_ENCRYPTION_KEY=<ваш-ключ-32-байта-в-hex>

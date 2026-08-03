@@ -14,7 +14,7 @@ const App: React.FC = () => {
     settingsStatus, interviewId, questionNumber, plannedQuestionCount, progress, error,
     setSelectedRole, startInterview, sendAudioResponse,
     finishInterview, restartInterview, generateSpeech, checkSettings,
-    setSettingsStatus, setError,
+    setSettingsStatus, setError, setState,
   } = useInterview();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -24,14 +24,16 @@ const App: React.FC = () => {
   const audioRecorder = useAudioRecorder();
 
   const handleStartRecording = useCallback(async () => {
+    setState('RECORDING');
     await audioRecorder.startRecording();
     isRecordingRef.current = true;
-  }, [audioRecorder]);
+  }, [audioRecorder, setState]);
 
   const handleStopRecording = useCallback(() => {
     audioRecorder.stopRecording();
+    setState('RECORDED');
     isRecordingRef.current = false;
-  }, [audioRecorder]);
+  }, [audioRecorder, setState]);
 
   const handleAnswer = useCallback(() => {
     if (audioRecorder.audioBlob) {

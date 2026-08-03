@@ -314,30 +314,44 @@ export async function finishInterview(
   ];
 
   const llmModel = process.env.ROUTERAI_LLM_MODEL || 'openai/gpt-5.6-luna';
-  const rawResponse = await chatCompletions(config, llmModel, llmMessages);
 
-  let cleaned = rawResponse.trim();
-  if (cleaned.startsWith('```')) {
-    cleaned = cleaned.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
+  let lastError: Error | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const rawResponse = await chatCompletions(config, llmModel, llmMessages);
+
+      let cleaned = rawResponse.trim();
+      if (cleaned.startsWith('```')) {
+        cleaned = cleaned.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
+      }
+
+      const parsed = JSON.parse(cleaned);
+      const validated = LLMResponseSchema.parse(parsed);
+
+      if (validated.type !== 'final') {
+        throw new Error('LLM не сформировал итоговый отчёт');
+      }
+
+      await query(
+        'UPDATE interviews SET status = $1, completed_at = NOW(), final_report = $2 WHERE id = $3',
+        ['completed', JSON.stringify(validated.report), interviewId]
+      );
+
+      const msgId = generateId();
+      await query(
+        'INSERT INTO messages (id, interview_id, role, text, message_type) VALUES ($1, $2, $3, $4, $5)',
+        [msgId, interviewId, 'assistant', validated.recruiterMessage, 'final']
+      );
+
+      return { report: validated.report, recruiterMessage: validated.recruiterMessage };
+    } catch (err: any) {
+      lastError = err;
+      llmMessages.push({
+        role: 'system',
+        content: 'Предыдущий ответ был не в корректном JSON формате или содержит недопустимые значения. Ответь строго в JSON формате, как указано в инструкции. Для поля hiringRecommendation используй ТОЛЬКО одно из значений: "рекомендуется к найму", "можно рассмотреть", "пока не рекомендуется".',
+      });
+    }
   }
 
-  const parsed = JSON.parse(cleaned);
-  const validated = LLMResponseSchema.parse(parsed);
-
-  if (validated.type !== 'final') {
-    throw new Error('LLM не сформировал итоговый отчёт');
-  }
-
-  await query(
-    'UPDATE interviews SET status = $1, completed_at = NOW(), final_report = $2 WHERE id = $3',
-    ['completed', JSON.stringify(validated.report), interviewId]
-  );
-
-  const msgId = generateId();
-  await query(
-    'INSERT INTO messages (id, interview_id, role, text, message_type) VALUES ($1, $2, $3, $4, $5)',
-    [msgId, interviewId, 'assistant', validated.recruiterMessage, 'final']
-  );
-
-  return { report: validated.report, recruiterMessage: validated.recruiterMessage };
+  throw new Error(`Не удалось получить корректный ответ от LLM: ${lastError?.message}`);
 }

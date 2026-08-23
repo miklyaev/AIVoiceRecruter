@@ -9,7 +9,10 @@ export function getConfig(encryptedKey: EncryptedData | null, baseUrl: string): 
   if (!encryptedKey || !encryptedKey.encrypted) return null;
   try {
     const apiKey = decrypt(encryptedKey);
-    return { apiKey, baseUrl: baseUrl || 'https://routerai.ru/api/v1' };
+    // Приоритет: env-переменная (позволяет E2E подменять внешний API на mock-сервер),
+    // затем значение из БД, затем дефолт RouterAI.
+    const resolvedBaseUrl = process.env.ROUTERAI_BASE_URL || baseUrl || 'https://routerai.ru/api/v1';
+    return { apiKey, baseUrl: resolvedBaseUrl };
   } catch {
     return null;
   }

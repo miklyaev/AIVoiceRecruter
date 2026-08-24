@@ -4,6 +4,28 @@ import type { CandidateFormData } from '../types';
 const PHONE_REGEX = /^\+7-\d{3}-\d{3}-\d{2}-\d{2}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+function formatPhoneNumber(rawValue: string): string {
+  let digits = rawValue.replace(/\D/g, '');
+
+  if (digits.startsWith('8')) {
+    digits = `7${digits.slice(1)}`;
+  }
+  if (!digits.startsWith('7')) {
+    digits = `7${digits}`;
+  }
+  digits = digits.slice(0, 11);
+
+  const rest = digits.slice(1);
+  const parts = [
+    rest.slice(0, 3),
+    rest.slice(3, 6),
+    rest.slice(6, 8),
+    rest.slice(8, 10),
+  ].filter((part) => part.length > 0);
+
+  return parts.length > 0 ? `+7-${parts.join('-')}` : '+7';
+}
+
 interface CandidateFormProps {
   data: CandidateFormData;
   onChange: (data: CandidateFormData) => void;
@@ -27,6 +49,12 @@ export const CandidateForm: React.FC<CandidateFormProps> = ({ data, onChange, di
 
   const handleField = (field: keyof CandidateFormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange({ ...data, [field]: e.target.value });
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digitsOnly = e.target.value.replace(/\D/g, '');
+    const formatted = digitsOnly.length > 0 ? formatPhoneNumber(e.target.value) : '';
+    onChange({ ...data, phoneNumber: formatted });
   };
 
   return (
@@ -76,8 +104,9 @@ export const CandidateForm: React.FC<CandidateFormProps> = ({ data, onChange, di
           id="candidate-phone"
           type="tel"
           value={data.phoneNumber}
-          onChange={handleField('phoneNumber')}
+          onChange={handlePhoneChange}
           disabled={disabled}
+          maxLength={16}
           placeholder="+7-903-945-00-88"
           className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-400 transition-colors"
           aria-label="Номер телефона"

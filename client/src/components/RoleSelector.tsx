@@ -11,8 +11,8 @@ interface RoleSelectorProps {
 export const RoleSelector: React.FC<RoleSelectorProps> = ({ roles, selectedRole, onSelect, disabled }) => {
   return (
     <div className="space-y-1.5">
-      <label htmlFor="role-select" className="block text-sm font-medium text-gray-700">
-        Выберите должность
+      <label htmlFor="role-select" className="block text-bg font-medium text-gray-700">
+        Выберите должность, на которую претендуете
       </label>
       <select
         id="role-select"

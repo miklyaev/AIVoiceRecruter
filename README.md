@@ -94,6 +94,10 @@ MAX_AUDIO_SIZE_MB=20
 INTERVIEW_MIN_QUESTIONS=5
 INTERVIEW_TARGET_QUESTIONS=7
 INTERVIEW_MAX_QUESTIONS=10
+
+# Служебная страница с отчётами (/admin)
+ADMIN_LOGIN=admin
+ADMIN_PASSWORD=admin123
 ```
 
 ## Запуск
@@ -119,7 +123,7 @@ Frontend будет доступен на `http://localhost:5173`, backend на 
 - `POST /api/settings/test` — тест подключения
 
 ### Профессии
-- `GET /api/roles` — список профессий
+- `GET /api/roles` — список профессий (Python-разработчик, Менеджер по продажам, HR-менеджер, Маркетолог, Аналитик, C#-разработчик)
 
 ### Интервью
 - `POST /api/interviews` — создать интервью
@@ -127,6 +131,16 @@ Frontend будет доступен на `http://localhost:5173`, backend на 
 - `POST /api/interviews/:id/answers` — отправить ответ
 - `POST /api/interviews/:id/finish` — завершить интервью
 - `POST /api/interviews/:id/messages/:messageId/speech` — озвучить сообщение
+
+### Служебная страница (админка)
+- `GET /api/admin/reports` — список завершённых интервью с итоговыми отчётами. Защищён HTTP Basic Auth, логин/пароль берутся из `ADMIN_LOGIN`/`ADMIN_PASSWORD` в `server/.env`
+
+## Служебная страница с итоговыми отчётами
+
+- Итоговые отчёты собеседований не отображаются на главной странице — после завершения интервью пользователь видит уведомление со ссылкой на служебную страницу
+- Доступ к отчётам — через `/admin` на frontend (ссылка «📋 Отчёты» в меню на главной форме)
+- Страница запрашивает логин и пароль и обращается к `GET /api/admin/reports` с HTTP Basic Auth
+- Логин и пароль настраиваются в `server/.env` через `ADMIN_LOGIN` и `ADMIN_PASSWORD` (по умолчанию `admin` / `admin123`)
 
 ## Безопасность хранения API-ключа
 
@@ -194,6 +208,8 @@ ROUTERAI_STT_MODEL=x-ai/grok-stt-1.0
 ROUTERAI_TTS_MODEL=microsoft/mai-voice-2-flash
 ROUTERAI_TTS_VOICE=ru-RU-Masha:MAI-Voice-2-Flash
 APP_ENCRYPTION_KEY=<ваш-ключ-32-байта-в-hex>
+ADMIN_LOGIN=<логин для /admin>
+ADMIN_PASSWORD=<пароль для /admin>
 ```
 
    > **Важно:** В Docker `DATABASE_URL` использует `host.docker.internal`, чтобы подключиться к PostgreSQL на хосте.

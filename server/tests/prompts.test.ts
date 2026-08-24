@@ -5,6 +5,7 @@ import { SALES_MANAGER_PROMPT } from '../src/prompts/sales-manager';
 import { HR_MANAGER_PROMPT } from '../src/prompts/hr-manager';
 import { MARKETER_PROMPT } from '../src/prompts/marketer';
 import { ANALYST_PROMPT } from '../src/prompts/analyst';
+import { CSHARP_DEVELOPER_PROMPT } from '../src/prompts/csharp-developer';
 
 describe('Prompts', () => {
   it('общий промпт содержит базовые правила', () => {
@@ -25,5 +26,6 @@ describe('Prompts', () => {
     expect(HR_MANAGER_PROMPT).toContain('HR');
     expect(MARKETER_PROMPT).toContain('Маркетолог');
     expect(ANALYST_PROMPT).toContain('Аналитика');
+    expect(CSHARP_DEVELOPER_PROMPT).toContain('C#');
   });
 });

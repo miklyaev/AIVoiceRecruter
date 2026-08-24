@@ -21,6 +21,10 @@ export const ROLES = {
     id: 'analyst',
     title: 'Аналитик',
   },
+  'csharp-developer': {
+    id: 'csharp-developer',
+    title: 'C#-разработчик',
+  },
 } as const;
 
 export type RoleId = keyof typeof ROLES;

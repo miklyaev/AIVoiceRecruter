@@ -14,6 +14,7 @@ export const CreateInterviewSchema = z.object({
     'hr-manager',
     'marketer',
     'analyst',
+    'csharp-developer',
   ]),
 });
 

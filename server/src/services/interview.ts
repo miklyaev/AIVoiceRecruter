@@ -9,6 +9,7 @@ import { SALES_MANAGER_PROMPT } from '../prompts/sales-manager';
 import { HR_MANAGER_PROMPT } from '../prompts/hr-manager';
 import { MARKETER_PROMPT } from '../prompts/marketer';
 import { ANALYST_PROMPT } from '../prompts/analyst';
+import { CSHARP_DEVELOPER_PROMPT } from '../prompts/csharp-developer';
 import { LLMResponseSchema } from '../schemas';
 
 const ROLE_PROMPTS: Record<string, string> = {
@@ -17,6 +18,7 @@ const ROLE_PROMPTS: Record<string, string> = {
   'hr-manager': HR_MANAGER_PROMPT,
   'marketer': MARKETER_PROMPT,
   'analyst': ANALYST_PROMPT,
+  'csharp-developer': CSHARP_DEVELOPER_PROMPT,
 };
 
 const MIN_QUESTIONS = parseInt(process.env.INTERVIEW_MIN_QUESTIONS || '5');

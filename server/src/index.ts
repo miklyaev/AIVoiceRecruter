@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import { initDatabase } from './db';
 import settingsRouter from './routes/settings';
 import interviewsRouter from './routes/interviews';
+import adminRouter from './routes/admin';
 import { ROLES } from './types';
 
 dotenv.config();
@@ -37,6 +38,7 @@ app.use('/api/audio', express.static(audioDir));
 // API routes
 app.use('/api/settings', settingsRouter);
 app.use('/api/interviews', interviewsRouter);
+app.use('/api/admin', adminRouter);
 
 // GET /api/roles
 app.get('/api/roles', (_req, res) => {

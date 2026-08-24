@@ -145,3 +145,18 @@ sudo nginx -t && sudo systemctl reload nginx
 - Backend подключается к PostgreSQL на хосте через `host.docker.internal:5432`
 - Добавлен `extra_hosts: - "host.docker.internal:host-gateway"` для Linux Docker
 - `DATABASE_URL` изменён на `postgresql://postgres:dasha2009@host.docker.internal:5432/ai_recruiter`
+
+## 24.08.2026 — Добавлена должность C#-разработчика
+
+### Что сделано
+- **server/src/types/index.ts**: в `ROLES` добавлена роль `csharp-developer` (title «C#-разработчик»)
+- **server/src/prompts/csharp-developer.ts**: создан промпт для собеседования Senior C#-разработчика (оценка .NET-экосистемы, ASP.NET Core, конкурентности, ORM, SOLID, тестирования, высоконагруженных сервисов)
+- **server/src/services/interview.ts**: промпт зарегистрирован в `ROLE_PROMPTS`
+- **server/src/schemas/index.ts**: `'csharp-developer'` добавлен в enum `CreateInterviewSchema`
+- **server/tests/roles.test.ts**: обновлён тест количества профессий (5 → 6), добавлена проверка новой роли
+- **server/tests/prompts.test.ts**: добавлена проверка нового промпта
+
+Frontend не менялся — список должностей подтягивается динамически через `GET /api/roles`.
+
+### Проверка
+- Все 24 теста проходят (Vitest)

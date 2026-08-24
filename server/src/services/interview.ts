@@ -246,6 +246,12 @@ export async function processAnswer(
       'UPDATE interviews SET status = $1, completed_at = NOW(), final_report = $2 WHERE id = $3',
       ['completed', JSON.stringify(result.report || null), interviewId]
     );
+    if (result.report?.hiringRecommendation) {
+      await query(
+        'UPDATE candidates SET hiring_recommendation = $1, updated_at = NOW() WHERE interview_id = $2',
+        [result.report.hiringRecommendation, interviewId]
+      );
+    }
   }
 
   return {
@@ -337,6 +343,12 @@ export async function finishInterview(
         'UPDATE interviews SET status = $1, completed_at = NOW(), final_report = $2 WHERE id = $3',
         ['completed', JSON.stringify(validated.report), interviewId]
       );
+      if (validated.report.hiringRecommendation) {
+        await query(
+          'UPDATE candidates SET hiring_recommendation = $1, updated_at = NOW() WHERE interview_id = $2',
+          [validated.report.hiringRecommendation, interviewId]
+        );
+      }
 
       const msgId = generateId();
       await query(

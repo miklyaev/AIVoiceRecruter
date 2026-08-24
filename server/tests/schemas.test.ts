@@ -67,17 +67,33 @@ describe('LLM Response Schema', () => {
 });
 
 describe('CreateInterviewSchema', () => {
-  it('должен валидировать корректную роль', () => {
-    const result = CreateInterviewSchema.parse({ role: 'python-developer' });
+  const validCandidate = {
+    role: 'python-developer',
+    name: 'Иван Иванов',
+    email: 'ivan@example.com',
+    phoneNumber: '+7-903-945-00-88',
+    experiance: '3 года',
+  };
+
+  it('должен валидировать корректную роль и данные кандидата', () => {
+    const result = CreateInterviewSchema.parse(validCandidate);
     expect(result.role).toBe('python-developer');
   });
 
   it('должен отклонять некорректную роль', () => {
-    expect(() => CreateInterviewSchema.parse({ role: 'invalid' })).toThrow();
+    expect(() => CreateInterviewSchema.parse({ ...validCandidate, role: 'invalid' })).toThrow();
   });
 
   it('без выбора профессии интервью не начинается', () => {
     expect(() => CreateInterviewSchema.parse({})).toThrow();
+  });
+
+  it('должен отклонять некорректный формат телефона', () => {
+    expect(() => CreateInterviewSchema.parse({ ...validCandidate, phoneNumber: '89039450088' })).toThrow();
+  });
+
+  it('должен отклонять некорректный email', () => {
+    expect(() => CreateInterviewSchema.parse({ ...validCandidate, email: 'not-an-email' })).toThrow();
   });
 });
 

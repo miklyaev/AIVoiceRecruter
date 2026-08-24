@@ -1,6 +1,9 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import type { AppState, Message, Role, Report, SettingsStatus } from '../types';
+import type { AppState, Message, Role, Report, SettingsStatus, CandidateFormData } from '../types';
 import * as api from '../services/api';
+import { validateCandidateForm } from '../components/CandidateForm';
+
+const EMPTY_CANDIDATE: CandidateFormData = { name: '', email: '', phoneNumber: '', experiance: '' };
 
 interface UseInterviewReturn {
   state: AppState;
@@ -15,7 +18,10 @@ interface UseInterviewReturn {
   plannedQuestionCount: number;
   progress: number;
   error: string | null;
+  candidate: CandidateFormData;
+  candidateValid: boolean;
   setSelectedRole: (role: string) => void;
+  setCandidate: (data: CandidateFormData) => void;
   startInterview: () => Promise<void>;
   sendAudioResponse: (blob: Blob) => Promise<void>;
   finishInterview: () => Promise<void>;
@@ -40,7 +46,9 @@ export function useInterview(): UseInterviewReturn {
   const [plannedQuestionCount, setPlannedQuestionCount] = useState(7);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [candidate, setCandidate] = useState<CandidateFormData>(EMPTY_CANDIDATE);
   const isProcessingRef = useRef(false);
+  const candidateValid = validateCandidateForm(candidate);
 
   // Load roles
   useEffect(() => {
@@ -90,7 +98,7 @@ export function useInterview(): UseInterviewReturn {
   }, [state]);
 
   const startInterview = useCallback(async () => {
-    if (!selectedRole || isProcessingRef.current) return;
+    if (!selectedRole || !candidateValid || isProcessingRef.current) return;
 
     isProcessingRef.current = true;
     setError(null);
@@ -100,7 +108,7 @@ export function useInterview(): UseInterviewReturn {
     setReport(null);
 
     try {
-      const result = await api.createInterview(selectedRole);
+      const result = await api.createInterview(selectedRole, candidate);
       setInterviewId(result.interviewId);
       localStorage.setItem('interviewId', result.interviewId);
       setQuestionNumber(result.questionNumber);
@@ -138,7 +146,7 @@ export function useInterview(): UseInterviewReturn {
     } finally {
       isProcessingRef.current = false;
     }
-  }, [selectedRole, roles]);
+  }, [selectedRole, roles, candidate, candidateValid]);
 
   const sendAudioResponse = useCallback(async (blob: Blob) => {
     if (!interviewId || isProcessingRef.current) return;
@@ -223,6 +231,7 @@ export function useInterview(): UseInterviewReturn {
     setError(null);
     setStatusMessage('');
     setSelectedRole('');
+    setCandidate(EMPTY_CANDIDATE);
     localStorage.removeItem('interviewId');
   }, []);
 
@@ -245,7 +254,8 @@ export function useInterview(): UseInterviewReturn {
   return {
     state, statusMessage, roles, selectedRole, messages, report,
     settingsStatus, interviewId, questionNumber, plannedQuestionCount, progress, error,
-    setSelectedRole, startInterview, sendAudioResponse,
+    candidate, candidateValid,
+    setSelectedRole, setCandidate, startInterview, sendAudioResponse,
     finishInterview: finishInterviewFn, restartInterview, generateSpeech, checkSettings,
     setSettingsStatus, setError, setState,
   };

@@ -83,3 +83,28 @@ export interface AdminReportItem {
   completedAt: string | null;
   report: Report;
 }
+
+export interface CandidateFormData {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  experiance: string;
+}
+
+export interface AdminCandidateItem {
+  id: string;
+  interviewId: string | null;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  roleId: string;
+  experiance: string;
+  hiringRecommendation: Report['hiringRecommendation'] | null;
+  createdAt: string;
+  interviewCompleted: boolean;
+}
+
+export interface AdminCandidateDetail extends AdminCandidateItem {
+  report: Report | null;
+}

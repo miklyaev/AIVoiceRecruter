@@ -3,6 +3,7 @@ import { useInterview } from './hooks/useInterview';
 import { useAudioRecorder } from './hooks/useAudioRecorder';
 import { Header } from './components/Header';
 import { RoleSelector } from './components/RoleSelector';
+import { CandidateForm } from './components/CandidateForm';
 import { InterviewControls } from './components/InterviewControls';
 import { ChatHistory } from './components/ChatHistory';
 import { SettingsModal } from './components/SettingsModal';
@@ -11,7 +12,8 @@ const App: React.FC = () => {
   const {
     state, statusMessage, roles, selectedRole, messages, report,
     settingsStatus, interviewId, questionNumber, plannedQuestionCount, progress, error,
-    setSelectedRole, startInterview, sendAudioResponse,
+    candidate, candidateValid,
+    setSelectedRole, setCandidate, startInterview, sendAudioResponse,
     finishInterview, restartInterview, generateSpeech, checkSettings,
     setSettingsStatus, setError, setState,
   } = useInterview();
@@ -108,6 +110,13 @@ const App: React.FC = () => {
               onSelect={setSelectedRole}
               disabled={state === 'STARTING'}
             />
+            {selectedRole && (
+              <CandidateForm
+                data={candidate}
+                onChange={setCandidate}
+                disabled={state === 'STARTING'}
+              />
+            )}
           </div>
         )}
 
@@ -184,6 +193,7 @@ const App: React.FC = () => {
           <InterviewControls
             state={state}
             selectedRole={selectedRole}
+            candidateValid={candidateValid}
             isRecording={audioRecorder.isRecording}
             onStart={startInterview}
             onStartRecording={handleStartRecording}

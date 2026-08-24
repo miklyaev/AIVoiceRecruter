@@ -7,6 +7,8 @@ export const SettingsUpdateSchema = z.object({
   baseUrl: z.string().url('Некорректный URL').default('https://routerai.ru/api/v1'),
 });
 
+export const PHONE_NUMBER_REGEX = /^\+7-\d{3}-\d{3}-\d{2}-\d{2}$/;
+
 export const CreateInterviewSchema = z.object({
   role: z.enum([
     'python-developer',
@@ -16,6 +18,10 @@ export const CreateInterviewSchema = z.object({
     'analyst',
     'csharp-developer',
   ]),
+  name: z.string().trim().min(1, 'Имя обязательно'),
+  email: z.string().trim().email('Некорректный email'),
+  phoneNumber: z.string().trim().regex(PHONE_NUMBER_REGEX, 'Формат телефона: +7-903-945-00-88'),
+  experiance: z.string().trim().min(1, 'Опыт обязателен'),
 });
 
 export const AnswerAssessmentSchema = z.object({

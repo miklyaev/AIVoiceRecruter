@@ -31,6 +31,13 @@ router.post('/', async (req: Request, res: Response) => {
     const parsed = CreateInterviewSchema.parse(req.body);
     const interview = await createInterview(parsed.role);
 
+    const candidateId = generateId();
+    await query(
+      `INSERT INTO candidates (id, interview_id, name, email, phone_number, role, experiance)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [candidateId, interview.id, parsed.name, parsed.email, parsed.phoneNumber, parsed.role, parsed.experiance]
+    );
+
     // Generate greeting message
     const greetingMsgId = generateId();
     const greetingText = `Здравствуйте! Я голосовой AI-рекрутер. Я проведу собеседование на позицию "${ROLES[parsed.role].title}", задам несколько вопросов и подготовлю итоговую оценку.`;

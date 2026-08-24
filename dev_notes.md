@@ -182,3 +182,19 @@ Frontend не менялся — список должностей подтяг�
 ### Проверка
 - `npm run build` в `client/` прошёл без ошибок
 - В браузере проверено: неверный логин/пароль → ошибка 401, верный (`admin`/`admin123` из `server/.env`) → список всех завершённых интервью корректно отображается
+
+## 24.08.2026 — Исправление схемы таблицы candidates
+
+### Проблема
+- В БД уже существовала таблица `candidates`, созданная ранее с колонкой `experience` (без опечатки) и без колонки `interview_id`
+- Из-за `CREATE TABLE IF NOT EXISTS` новая DDL с `experiance` и `interview_id UUID UNIQUE REFERENCES interviews(id)` не применялась к уже существующей таблице
+
+### Что исправлено
+- **server/src/db/index.ts**: после `CREATE TABLE IF NOT EXISTS candidates` добавлен блок `DO $$ ... $$` миграции:
+  - если есть колонка `experience` и нет `experiance` — `RENAME COLUMN experience TO experiance`
+  - если нет колонки `interview_id` — `ADD COLUMN interview_id UUID UNIQUE REFERENCES interviews(id)`
+- Миграция идемпотентна и безопасна для повторного запуска при старте сервера
+
+### Проверка
+- Миграция применена к рабочей БД, итоговая схема `candidates`: `id, name, email, phone_number, role, experiance, created_at, updated_at, resume, hiring_recommendation, interview_id`
+- `npm run build` и `npm test` (26/26) в `server/` прошли без ошибок

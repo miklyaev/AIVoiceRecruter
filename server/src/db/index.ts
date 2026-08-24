@@ -42,7 +42,44 @@ export async function initDatabase(): Promise<void> {
         audio_reference TEXT,
         created_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS candidates (
+        id UUID PRIMARY KEY,
+        interview_id UUID UNIQUE REFERENCES interviews(id),
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone_number TEXT NOT NULL,
+        role TEXT NOT NULL,
+        experiance TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        resume TEXT,
+        hiring_recommendation TEXT
+      );
     `);
+
+    await client.query(`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'candidates' AND column_name = 'experience'
+        ) AND NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'candidates' AND column_name = 'experiance'
+        ) THEN
+          ALTER TABLE candidates RENAME COLUMN experience TO experiance;
+        END IF;
+
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'candidates' AND column_name = 'interview_id'
+        ) THEN
+          ALTER TABLE candidates ADD COLUMN interview_id UUID UNIQUE REFERENCES interviews(id);
+        END IF;
+      END $$;
+    `);
+
     console.log('Database initialized');
   } finally {
     client.release();

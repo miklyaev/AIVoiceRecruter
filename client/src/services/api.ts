@@ -1,4 +1,4 @@
-import type { SettingsStatus, CreateInterviewResponse, AnswerResponse, Interview, Role, AdminReportItem } from '../types';
+import type { SettingsStatus, CreateInterviewResponse, AnswerResponse, Interview, Role, AdminReportItem, CandidateFormData, AdminCandidateItem, AdminCandidateDetail } from '../types';
 
 const API_BASE = '/api';
 
@@ -42,11 +42,11 @@ export async function getRoles(): Promise<Role[]> {
   return request('/roles');
 }
 
-export async function createInterview(role: string): Promise<CreateInterviewResponse> {
+export async function createInterview(role: string, candidate: CandidateFormData): Promise<CreateInterviewResponse> {
   return request('/interviews', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ role }),
+    body: JSON.stringify({ role, ...candidate }),
   });
 }
 
@@ -83,6 +83,49 @@ export async function getAdminReports(login: string, password: string): Promise<
   const authHeader = 'Basic ' + btoa(`${login}:${password}`);
   const res = await fetch(`${API_BASE}/admin/reports`, {
     headers: { Authorization: authHeader },
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ error: 'Ошибка запроса' }));
+    throw new Error(error.error || `HTTP ${res.status}`);
+  }
+
+  return res.json();
+}
+
+function adminAuthHeader(login: string, password: string): string {
+  return 'Basic ' + btoa(`${login}:${password}`);
+}
+
+export async function getAdminCandidates(
+  login: string,
+  password: string,
+  filters?: { role?: string; hiringRecommendation?: string }
+): Promise<{ candidates: AdminCandidateItem[] }> {
+  const params = new URLSearchParams();
+  if (filters?.role) params.set('role', filters.role);
+  if (filters?.hiringRecommendation) params.set('hiringRecommendation', filters.hiringRecommendation);
+  const query = params.toString() ? `?${params.toString()}` : '';
+
+  const res = await fetch(`${API_BASE}/admin/candidates${query}`, {
+    headers: { Authorization: adminAuthHeader(login, password) },
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ error: 'Ошибка запроса' }));
+    throw new Error(error.error || `HTTP ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export async function getAdminCandidateDetail(
+  login: string,
+  password: string,
+  candidateId: string
+): Promise<AdminCandidateDetail> {
+  const res = await fetch(`${API_BASE}/admin/candidates/${candidateId}`, {
+    headers: { Authorization: adminAuthHeader(login, password) },
   });
 
   if (!res.ok) {

@@ -35,13 +35,22 @@ export const Header: React.FC<HeaderProps> = ({ settingsStatus, onOpenSettings }
             <span className="text-gray-600">{status.text}</span>
           </div>
         </div>
-        <button
-          onClick={onOpenSettings}
-          className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-          aria-label="Открыть настройки"
-        >
-          ⚙️ Настройки
-        </button>
+        <div className="flex items-center gap-2">
+          <a
+            href="/admin"
+            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Служебная страница"
+          >
+            📋 Отчёты
+          </a>
+          <button
+            onClick={onOpenSettings}
+            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Открыть настройки"
+          >
+            ⚙️ Настройки
+          </button>
+        </div>
       </div>
     </header>
   );

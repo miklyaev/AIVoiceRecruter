@@ -73,3 +73,13 @@ export interface Interview {
   final_report: Report | null;
   messages: Message[];
 }
+
+export interface AdminReportItem {
+  id: string;
+  role: string;
+  questionCount: number;
+  plannedQuestionCount: number;
+  startedAt: string;
+  completedAt: string | null;
+  report: Report;
+}

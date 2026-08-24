@@ -5,7 +5,6 @@ import { Header } from './components/Header';
 import { RoleSelector } from './components/RoleSelector';
 import { InterviewControls } from './components/InterviewControls';
 import { ChatHistory } from './components/ChatHistory';
-import { FinalReport } from './components/FinalReport';
 import { SettingsModal } from './components/SettingsModal';
 
 const App: React.FC = () => {
@@ -195,8 +194,14 @@ const App: React.FC = () => {
           />
         </div>
 
-        {/* Final Report */}
-        {report && <FinalReport report={report} />}
+        {/* Final Report notice */}
+        {report && (
+          <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
+            <p className="text-purple-800 text-sm">
+              ✅ Собеседование завершено. Итоговый отчёт доступен на <a href="/admin" className="underline font-medium">служебной странице</a>.
+            </p>
+          </div>
+        )}
       </main>
 
       <footer className="text-center py-4 text-xs text-gray-400">

@@ -160,3 +160,25 @@ Frontend не менялся — список должностей подтяг�
 
 ### Проверка
 - Все 24 теста проходят (Vitest)
+
+## 24.08.2026 — Служебная страница с итоговыми отчётами
+
+### Цель
+Итоговые отчёты собеседований терье не показываются на главной странице — они доступны только на служебной странице `/admin`, защищённой логином/паролем из `server/.env`.
+
+### Backend (уже был готов в рабочей копии до начала задачи, проверен и оставлен без изменений)
+- **server/src/routes/admin.ts**: `GET /api/admin/reports` — список завершённых интервью с отчётами, защищено Basic Auth мидлварой, сравнивает с `ADMIN_LOGIN`/`ADMIN_PASSWORD` из `server/.env` (fallback `admin`/`admin123`)
+- **server/src/index.ts**: зарегистрирован `adminRouter` на `/api/admin`
+- **.env.example**: добавлены `ADMIN_LOGIN`, `ADMIN_PASSWORD`
+
+### Frontend (новое)
+- **client/src/components/AdminPage.tsx**: новый компонент — форма ввода логина/пароля, после установки Basic Auth запрашивает и рендерит список `FinalReport` через существующий компонент
+- **client/src/main.tsx**: простой роутинг без библиотек — при `pathname` начинающемся с `/admin` рендерится `AdminPage` вместо `App`
+- **client/src/components/Header.tsx**: в меню главной страницы добавлена ссылка «📋 Отчёты» на `/admin`
+- **client/src/App.tsx**: блок `FinalReport` заменён на короткое уведомление с ссылкой на `/admin`
+- **client/src/services/api.ts**: добавлен `getAdminReports(login, password)` — запрос к `GET /api/admin/reports` с заголовком `Authorization: Basic ...`
+- **client/src/types/index.ts**: добавлен тип `AdminReportItem`
+
+### Проверка
+- `npm run build` в `client/` прошёл без ошибок
+- В браузере проверено: неверный логин/пароль → ошибка 401, верный (`admin`/`admin123` из `server/.env`) → список всех завершённых интервью корректно отображается

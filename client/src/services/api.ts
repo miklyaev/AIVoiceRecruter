@@ -1,4 +1,4 @@
-import type { SettingsStatus, CreateInterviewResponse, AnswerResponse, Interview, Role } from '../types';
+import type { SettingsStatus, CreateInterviewResponse, AnswerResponse, Interview, Role, AdminReportItem } from '../types';
 
 const API_BASE = '/api';
 
@@ -77,4 +77,18 @@ export async function finishInterview(interviewId: string): Promise<{ report: an
 
 export async function generateSpeech(interviewId: string, messageId: string): Promise<{ audioUrl: string }> {
   return request(`/interviews/${interviewId}/messages/${messageId}/speech`, { method: 'POST' });
+}
+
+export async function getAdminReports(login: string, password: string): Promise<{ reports: AdminReportItem[] }> {
+  const authHeader = 'Basic ' + btoa(`${login}:${password}`);
+  const res = await fetch(`${API_BASE}/admin/reports`, {
+    headers: { Authorization: authHeader },
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ error: 'Ошибка запроса' }));
+    throw new Error(error.error || `HTTP ${res.status}`);
+  }
+
+  return res.json();
 }

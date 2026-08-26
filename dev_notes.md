@@ -198,3 +198,18 @@ Frontend не менялся — список должностей подтяг�
 ### Проверка
 - Миграция применена к рабочей БД, итоговая схема `candidates`: `id, name, email, phone_number, role, experiance, created_at, updated_at, resume, hiring_recommendation, interview_id`
 - `npm run build` и `npm test` (26/26) в `server/` прошли без ошибок
+
+## 26.08.2026 — Скрипт очистки базы данных
+
+### Что сделано
+- **server/scripts/clean-db.ts**: новый скрипт очистки БД — подключается через `DATABASE_URL` из `server/.env`, в транзакции выполняет `TRUNCATE TABLE <все таблицы public> RESTART IDENTITY CASCADE` (очищает `candidates`, `interviews`, `messages`, `settings`)
+- **server/package.json**: добавлен npm-скрипт `clean:db` → `tsx scripts/clean-db.ts`
+
+### Использование
+```bash
+cd server
+npm run clean:db
+```
+
+### Проверка
+- Скрипт выполнен успешно: `Database cleaned. Truncated tables: candidates, interviews, messages, settings`

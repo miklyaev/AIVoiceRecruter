@@ -197,9 +197,31 @@ export async function processAnswer(
     [candidateMsgId, interviewId, 'user', transcript, 'answer', interview.question_count]
   );
 
+  const nextQuestionNumber = interview.question_count + 1;
+
+  // If the planned question count is reached, finish the interview instead of asking more questions
+  if (nextQuestionNumber > interview.planned_question_count) {
+    const finishResult = await finishInterview(interviewId);
+    return {
+      transcript,
+      candidateMessage: {
+        id: candidateMsgId,
+        role: 'user',
+        text: transcript,
+      },
+      recruiterMessage: {
+        id: generateId(),
+        role: 'assistant',
+        text: finishResult.recruiterMessage,
+      },
+      questionNumber: nextQuestionNumber,
+      status: 'completed',
+      report: finishResult.report,
+    };
+  }
+
   // 2. LLM - generate next question
   const messages = await getMessages(interviewId);
-  const nextQuestionNumber = interview.question_count + 1;
 
   const result = await generateQuestion(interview.role, messages, nextQuestionNumber);
 

@@ -213,3 +213,14 @@ npm run clean:db
 
 ### Проверка
 - Скрипт выполнен успешно: `Database cleaned. Truncated tables: candidates, interviews, messages, settings`
+
+## 26.08.2026 — Исправление превышения количества вопросов
+
+### Проблема
+- Интервью могло задать больше вопросов, чем запланировано (например, 10 из 7): завершение полностью зависело от решения LLM (`shouldFinish`), а не от жёсткого лимита `planned_question_count`
+
+### Что сделано
+- **server/src/services/interview.ts**: в `processAnswer` добавлена жёсткая проверка — если `nextQuestionNumber > interview.planned_question_count`, интервью принудительно завершается через `finishInterview` (формируется итоговый отчёт), вместо генерации следующего вопроса
+
+### Проверка
+- `npx tsc --noEmit` в `server/` без ошибок; сервер перезапущен через `tsx watch`

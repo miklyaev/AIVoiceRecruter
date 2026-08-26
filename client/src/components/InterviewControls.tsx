@@ -25,9 +25,17 @@ export const InterviewControls: React.FC<InterviewControlsProps> = ({
   const canFinish = state === 'ASKING' && !isRecording;
   const showRestart = state === 'COMPLETED' || state === 'ERROR';
 
+  const showStartHint = selectedRole && (state === 'READY' || state === 'API_KEY_REQUIRED' || state === 'STARTING');
+
   return (
-    <div className="flex flex-wrap gap-2 items-center justify-center">
-      {selectedRole && (state === 'READY' || state === 'API_KEY_REQUIRED' || state === 'STARTING') && (
+    <div className="flex flex-col gap-2 items-center justify-center">
+      {(showStartHint || showRestart) && (
+        <p className="text-sm text-gray-600 text-center max-w-md">
+          Отвечать нужно чётко, внятно и громко, чтобы было корректное распознавание ответа. Большие паузы в речи делать не рекомендуется.
+        </p>
+      )}
+      <div className="flex flex-wrap gap-2 items-center justify-center">
+      {showStartHint && (
         <button
           onClick={onStart}
           disabled={!canStart}
@@ -64,7 +72,7 @@ export const InterviewControls: React.FC<InterviewControlsProps> = ({
           className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
           aria-label="Ответить"
         >
-          📤 Ответить
+          📤 Отправить ответ
         </button>
       )}
 
@@ -87,6 +95,7 @@ export const InterviewControls: React.FC<InterviewControlsProps> = ({
           🔄 Начать новое собеседование
         </button>
       )}
+      </div>
     </div>
   );
 };

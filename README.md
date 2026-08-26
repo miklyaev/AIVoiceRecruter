@@ -28,7 +28,7 @@
 
 | Компонент | Endpoint | Модель |
 |-----------|----------|--------|
-| LLM | `POST /api/v1/chat/completions` | `openai/gpt-5.6-luna` |
+| LLM | `POST /api/v1/chat/completions` | `openai/gpt-5.6-luna-pro` |
 | STT | `POST /api/v1/audio/transcriptions` | `x-ai/grok-stt-1.0` |
 | TTS | `POST /api/v1/audio/speech` | `microsoft/mai-voice-2-flash` |
 
@@ -77,7 +77,7 @@ PORT=3000
 ROUTERAI_BASE_URL=https://routerai.ru/api/v1
 
 # Модели RouterAI
-ROUTERAI_LLM_MODEL=openai/gpt-5.6-luna
+ROUTERAI_LLM_MODEL=openai/gpt-5.6-luna-pro
 ROUTERAI_STT_MODEL=x-ai/grok-stt-1.0
 ROUTERAI_TTS_MODEL=microsoft/mai-voice-2-flash
 ROUTERAI_TTS_VOICE=ru-RU-Masha:MAI-Voice-2-Flash
@@ -203,7 +203,7 @@ CREATE DATABASE ai_recruiter;
 DATABASE_URL=postgresql://DB_USER_NAME:DB_PASSWORD@host.docker.internal:5432/ai_recruiter
 PORT=3000
 CORS_ORIGIN=https://recruter.ai-nvkz.ru
-ROUTERAI_LLM_MODEL=openai/gpt-5.6-luna
+ROUTERAI_LLM_MODEL=openai/gpt-5.6-luna-pro
 ROUTERAI_STT_MODEL=x-ai/grok-stt-1.0
 ROUTERAI_TTS_MODEL=microsoft/mai-voice-2-flash
 ROUTERAI_TTS_VOICE=ru-RU-Masha:MAI-Voice-2-Flash

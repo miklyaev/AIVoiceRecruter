@@ -17,7 +17,7 @@
 - Тесты: 23 теста (Vitest)
 
 ### Используемые модели RouterAI
-- LLM: `openai/gpt-5.6-luna` через `POST /api/v1/chat/completions`
+- LLM: `openai/gpt-5.6-luna-pro` через `POST /api/v1/chat/completions`
 - STT: `openai/whisper-large-v4` через `POST /api/v1/audio/transcriptions`
 - TTS: `microsoft/mai-voice-2-flash` через `POST /api/v1/audio/speech`
 

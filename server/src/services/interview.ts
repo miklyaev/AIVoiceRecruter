@@ -115,7 +115,7 @@ export async function generateQuestion(role: string, messages: any[], questionNu
   );
   if (!config) throw new Error('API-ключ не настроен');
 
-  const llmModel = process.env.ROUTERAI_LLM_MODEL || 'openai/gpt-5.6-luna';
+  const llmModel = process.env.ROUTERAI_LLM_MODEL || 'openai/gpt-5.6-luna-pro';
 
   // Try up to 2 times for JSON parsing
   let lastError: Error | null = null;
@@ -342,7 +342,7 @@ export async function finishInterview(
     },
   ];
 
-  const llmModel = process.env.ROUTERAI_LLM_MODEL || 'openai/gpt-5.6-luna';
+  const llmModel = process.env.ROUTERAI_LLM_MODEL || 'openai/gpt-5.6-luna-pro';
 
   let lastError: Error | null = null;
   for (let attempt = 0; attempt < 3; attempt++) {

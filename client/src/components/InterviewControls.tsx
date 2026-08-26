@@ -30,9 +30,12 @@ export const InterviewControls: React.FC<InterviewControlsProps> = ({
   return (
     <div className="flex flex-col gap-2 items-center justify-center">
       {(showStartHint || showRestart) && (
-        <p className="text-sm text-red-600 text-center max-w-md">
-          Отвечать нужно чётко, внятно и громко, чтобы было корректное распознавание ответа. Большие паузы в речи делать не рекомендуется.
-        </p>
+        <div className="w-full max-w-md border-2 border-red-500 bg-red-50 rounded-lg px-4 py-3 flex items-start gap-3">
+          <span className="text-2xl" aria-hidden="true">⚠️</span>
+          <p className="text-sm text-red-700 text-left font-medium">
+            Отвечать нужно чётко, внятно и громко, чтобы было корректное распознавание ответа. Большие паузы в речи делать не рекомендуется.
+          </p>
+        </div>
       )}
       <div className="flex flex-wrap gap-2 items-center justify-center">
       {showStartHint && (

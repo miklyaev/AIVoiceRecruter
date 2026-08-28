@@ -224,3 +224,22 @@ npm run clean:db
 
 ### Проверка
 - `npx tsc --noEmit` в `server/` без ошибок; сервер перезапущен через `tsx watch`
+
+## 28.08.2026 — Миграции базы данных для Docker
+
+### Что сделано
+- **server/db/migrations/001_init.sql**: SQL-скрипт создания всех таблиц (`settings`, `interviews`, `messages`, `candidates`) + миграционные ALTER (переименование `experience` → `experiance`, добавление `interview_id`). Идемпотентен — безопасен для повторного запуска
+- **server/src/migrate.ts**: скрипт миграции — читает SQL-файл и выполняет его через `DATABASE_URL`; работает и из `dist/` (Docker), и через `tsx` (локально)
+- **server/entrypoint.sh**: при старте контейнера сначала выполняет `node dist/migrate.js`, затем запускает приложение
+- **server/Dockerfile**: в runner-стадию добавлены `COPY db/` и `COPY entrypoint.sh`, `CMD` заменён на `/app/entrypoint.sh`
+- **server/package.json**: добавлен npm-скрипт `migrate` → `tsx src/migrate.ts`
+
+### Использование
+```bash
+cd server
+npm run migrate   # локально
+# в Docker миграция выполняется автоматически при старте контейнера
+```
+
+### Проверка
+- `npm run build` в `server/` прошёл без ошибок, `dist/migrate.js` создан

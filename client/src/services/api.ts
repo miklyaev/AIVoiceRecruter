@@ -71,6 +71,14 @@ export async function sendAnswer(interviewId: string, audioBlob: Blob): Promise<
   return res.json();
 }
 
+export async function sendTextAnswer(interviewId: string, text: string): Promise<AnswerResponse> {
+  return request(`/interviews/${interviewId}/answers/text`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+  });
+}
+
 export async function finishInterview(interviewId: string): Promise<{ report: any; recruiterMessage: string }> {
   return request(`/interviews/${interviewId}/finish`, { method: 'POST' });
 }

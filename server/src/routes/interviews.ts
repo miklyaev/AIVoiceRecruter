@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import { query } from '../db';
-import { createInterview, getInterview, getMessages, processAnswer, finishInterview, generateQuestion } from '../services/interview';
+import { createInterview, getInterview, getMessages, processAnswer, processTranscript, finishInterview, generateQuestion } from '../services/interview';
 import { ROLES } from '../types';
-import { CreateInterviewSchema } from '../schemas';
+import { CreateInterviewSchema, TextAnswerSchema } from '../schemas';
 import { generateId } from '../types';
 import fs from 'fs';
 import path from 'path';
@@ -167,6 +167,23 @@ router.post('/:id/answers', upload.single('audio'), async (req: Request, res: Re
       return res.status(400).json({ error: 'Не удалось распознать речь. Попробуйте записать ответ ещё раз.', emptyTranscript: true });
     }
     console.error('Answer processing error:', err);
+    return res.status(500).json({ error: 'Ошибка обработки ответа' });
+  }
+});
+
+// POST /api/interviews/:id/answers/text — текстовый ответ в обход STT (debug-режим)
+router.post('/:id/answers/text', async (req: Request, res: Response) => {
+  try {
+    const parsed = TextAnswerSchema.parse(req.body);
+
+    const result = await processTranscript(req.params.id, parsed.text);
+
+    return res.json(result);
+  } catch (err: any) {
+    if (err.name === 'ZodError') {
+      return res.status(400).json({ error: 'Некорректные данные', details: err.errors });
+    }
+    console.error('Text answer processing error:', err);
     return res.status(500).json({ error: 'Ошибка обработки ответа' });
   }
 });

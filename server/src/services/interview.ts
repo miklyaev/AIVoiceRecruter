@@ -190,6 +190,35 @@ export async function processAnswer(
     throw new Error('empty_transcript');
   }
 
+  return processTranscript(interviewId, transcript);
+}
+
+// Processes an already-recognized (or manually typed) answer text: saves it,
+// generates the next question / final report. Used by both STT and debug text input.
+export async function processTranscript(
+  interviewId: string,
+  transcript: string
+): Promise<{
+  transcript: string;
+  candidateMessage: any;
+  recruiterMessage: any;
+  questionNumber: number;
+  status: string;
+  report: any | null;
+}> {
+  const interview = await getInterview(interviewId);
+  if (!interview) throw new Error('Интервью не найдено');
+  if (interview.status !== 'in_progress') throw new Error('Интервью уже завершено');
+
+  const settings = await getSettings();
+  if (!settings) throw new Error('Настройки не найдены');
+
+  const config = getConfig(
+    { encrypted: settings.encrypted_api_key, iv: settings.encryption_iv, tag: settings.encryption_tag },
+    settings.base_url
+  );
+  if (!config) throw new Error('API-ключ не настроен');
+
   // Save candidate message
   const candidateMsgId = generateId();
   await query(

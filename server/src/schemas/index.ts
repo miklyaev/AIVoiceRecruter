@@ -24,6 +24,10 @@ export const CreateInterviewSchema = z.object({
   experiance: z.string().trim().min(1, 'Опыт обязателен'),
 });
 
+export const TextAnswerSchema = z.object({
+  text: z.string().trim().min(1, 'Текст ответа обязателен').max(5000, 'Ответ слишком длинный'),
+});
+
 export const AnswerAssessmentSchema = z.object({
   relevance: z.number().min(0).max(10),
   depth: z.number().min(0).max(10),

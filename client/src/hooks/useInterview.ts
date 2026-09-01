@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import type { AppState, Message, Role, Report, SettingsStatus, CandidateFormData } from '../types';
+import type { AppState, Message, Role, Report, SettingsStatus, CandidateFormData, AnswerResponse } from '../types';
 import * as api from '../services/api';
 import { validateCandidateForm } from '../components/CandidateForm';
 
@@ -24,6 +24,7 @@ interface UseInterviewReturn {
   setCandidate: (data: CandidateFormData) => void;
   startInterview: () => Promise<void>;
   sendAudioResponse: (blob: Blob) => Promise<void>;
+  sendTextResponse: (text: string) => Promise<void>;
   finishInterview: () => Promise<void>;
   restartInterview: () => void;
   generateSpeech: (messageId: string) => Promise<void>;
@@ -148,6 +149,32 @@ export function useInterview(): UseInterviewReturn {
     }
   }, [selectedRole, roles, candidate, candidateValid]);
 
+  const applyAnswerResult = useCallback(async (result: AnswerResponse) => {
+    setState('ANALYZING');
+    setStatusMessage('Анализируем ответ...');
+
+    // Update messages
+    const newMessages = [...messages, result.candidateMessage];
+    setMessages([...newMessages, result.recruiterMessage]);
+    setQuestionNumber(result.questionNumber);
+    setProgress((result.questionNumber / plannedQuestionCount) * 100);
+
+    if (result.status === 'completed' && result.report) {
+      setReport(result.report);
+      setState('COMPLETED');
+      setStatusMessage('');
+      localStorage.removeItem('interviewId');
+    } else {
+      setState('ASKING');
+      setStatusMessage('');
+
+      // Auto-play audio
+      if (result.recruiterMessage.audioUrl) {
+        playAudio(result.recruiterMessage.audioUrl);
+      }
+    }
+  }, [messages, plannedQuestionCount]);
+
   const sendAudioResponse = useCallback(async (blob: Blob) => {
     if (!interviewId || isProcessingRef.current) return;
 
@@ -158,30 +185,7 @@ export function useInterview(): UseInterviewReturn {
 
     try {
       const result = await api.sendAnswer(interviewId, blob);
-
-      setState('ANALYZING');
-      setStatusMessage('Анализируем ответ...');
-
-      // Update messages
-      const newMessages = [...messages, result.candidateMessage];
-      setMessages([...newMessages, result.recruiterMessage]);
-      setQuestionNumber(result.questionNumber);
-      setProgress((result.questionNumber / plannedQuestionCount) * 100);
-
-      if (result.status === 'completed' && result.report) {
-        setReport(result.report);
-        setState('COMPLETED');
-        setStatusMessage('');
-        localStorage.removeItem('interviewId');
-      } else {
-        setState('ASKING');
-        setStatusMessage('');
-
-        // Auto-play audio
-        if (result.recruiterMessage.audioUrl) {
-          playAudio(result.recruiterMessage.audioUrl);
-        }
-      }
+      await applyAnswerResult(result);
     } catch (err: any) {
       if (err.message.includes('распознать')) {
         setError(err.message);
@@ -193,7 +197,26 @@ export function useInterview(): UseInterviewReturn {
     } finally {
       isProcessingRef.current = false;
     }
-  }, [interviewId, messages, plannedQuestionCount]);
+  }, [interviewId, applyAnswerResult]);
+
+  const sendTextResponse = useCallback(async (text: string) => {
+    if (!interviewId || isProcessingRef.current) return;
+
+    isProcessingRef.current = true;
+    setError(null);
+    setState('ANALYZING');
+    setStatusMessage('Отправляем ответ...');
+
+    try {
+      const result = await api.sendTextAnswer(interviewId, text);
+      await applyAnswerResult(result);
+    } catch (err: any) {
+      setError(err.message || 'Ошибка обработки ответа');
+      setState('ASKING');
+    } finally {
+      isProcessingRef.current = false;
+    }
+  }, [interviewId, applyAnswerResult]);
 
   const finishInterviewFn = useCallback(async () => {
     if (!interviewId || isProcessingRef.current) return;
@@ -255,7 +278,7 @@ export function useInterview(): UseInterviewReturn {
     state, statusMessage, roles, selectedRole, messages, report,
     settingsStatus, interviewId, questionNumber, plannedQuestionCount, progress, error,
     candidate, candidateValid,
-    setSelectedRole, setCandidate, startInterview, sendAudioResponse,
+    setSelectedRole, setCandidate, startInterview, sendAudioResponse, sendTextResponse,
     finishInterview: finishInterviewFn, restartInterview, generateSpeech, checkSettings,
     setSettingsStatus, setError, setState,
   };

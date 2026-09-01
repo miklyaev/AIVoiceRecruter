@@ -22,6 +22,28 @@ export const AdminPage: React.FC = () => {
     api.getRoles().then(setRoles).catch(() => {});
   }, []);
 
+  // Автовход, если служебный вход уже выполнен на главной странице
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('serviceAuth');
+      if (saved) {
+        const auth = JSON.parse(saved);
+        setLogin(auth.login);
+        setPassword(auth.password);
+        api.getAdminCandidates(auth.login, auth.password)
+          .then((result) => {
+            setCandidates(result.candidates);
+            setAuthorized(true);
+          })
+          .catch(() => {
+            sessionStorage.removeItem('serviceAuth');
+          });
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const loadCandidates = useCallback(async (currentLogin: string, currentPassword: string) => {
     setLoading(true);
     try {

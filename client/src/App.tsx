@@ -7,18 +7,32 @@ import { CandidateForm } from './components/CandidateForm';
 import { InterviewControls } from './components/InterviewControls';
 import { ChatHistory } from './components/ChatHistory';
 import { SettingsModal } from './components/SettingsModal';
+import { ServiceLoginModal } from './components/ServiceLoginModal';
+
+const SERVICE_AUTH_KEY = 'serviceAuth';
 
 const App: React.FC = () => {
   const {
     state, statusMessage, roles, selectedRole, messages, report,
     settingsStatus, interviewId, questionNumber, plannedQuestionCount, progress, error,
     candidate, candidateValid,
-    setSelectedRole, setCandidate, startInterview, sendAudioResponse,
+    setSelectedRole, setCandidate, startInterview, sendAudioResponse, sendTextResponse,
     finishInterview, restartInterview, generateSpeech, checkSettings,
     setSettingsStatus, setError, setState,
   } = useInterview();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [serviceLoginOpen, setServiceLoginOpen] = useState(false);
+  const [serviceAuth, setServiceAuth] = useState<{ login: string; password: string } | null>(() => {
+    try {
+      const saved = sessionStorage.getItem(SERVICE_AUTH_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  // По умолчанию всегда режим 'work'; debug включается вручную в настройках
+  const [appMode, setAppMode] = useState<'work' | 'debug'>('work');
   const [pendingBlob, setPendingBlob] = useState<Blob | null>(null);
   const isRecordingRef = useRef(false);
 
@@ -53,6 +67,18 @@ const App: React.FC = () => {
     }
   }, [audioRecorder.audioBlob, audioRecorder.isRecording]);
 
+  const handleServiceLoginSuccess = useCallback((login: string, password: string) => {
+    sessionStorage.setItem(SERVICE_AUTH_KEY, JSON.stringify({ login, password }));
+    setServiceAuth({ login, password });
+    setServiceLoginOpen(false);
+  }, []);
+
+  const handleServiceLogout = useCallback(() => {
+    sessionStorage.removeItem(SERVICE_AUTH_KEY);
+    setServiceAuth(null);
+    setAppMode('work');
+  }, []);
+
   const handleFinish = useCallback(() => {
     finishInterview();
   }, [finishInterview]);
@@ -69,6 +95,9 @@ const App: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-100">
       <Header
         settingsStatus={settingsStatus}
+        serviceAuthorized={!!serviceAuth}
+        onServiceLogin={() => setServiceLoginOpen(true)}
+        onServiceLogout={handleServiceLogout}
         onOpenSettings={() => setSettingsOpen(true)}
       />
 
@@ -195,10 +224,12 @@ const App: React.FC = () => {
             selectedRole={selectedRole}
             candidateValid={candidateValid}
             isRecording={audioRecorder.isRecording}
+            mode={appMode}
             onStart={startInterview}
             onStartRecording={handleStartRecording}
             onStopRecording={handleStopRecording}
             onAnswer={handleAnswer}
+            onTextAnswer={sendTextResponse}
             onFinish={handleFinish}
             onRestart={handleRestart}
           />
@@ -218,12 +249,21 @@ const App: React.FC = () => {
         Голосовой AI-рекрутер &copy; 2026
       </footer>
 
+      {/* Service Login Modal */}
+      <ServiceLoginModal
+        isOpen={serviceLoginOpen}
+        onClose={() => setServiceLoginOpen(false)}
+        onSuccess={handleServiceLoginSuccess}
+      />
+
       {/* Settings Modal */}
       <SettingsModal
         isOpen={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
         settingsStatus={settingsStatus}
         onUpdate={checkSettings}
+        mode={appMode}
+        onModeChange={setAppMode}
+        onClose={() => setSettingsOpen(false)}
       />
     </div>
   );

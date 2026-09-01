@@ -3,10 +3,13 @@ import type { SettingsStatus } from '../types';
 
 interface HeaderProps {
   settingsStatus: SettingsStatus | null;
+  serviceAuthorized: boolean;
+  onServiceLogin: () => void;
+  onServiceLogout: () => void;
   onOpenSettings: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ settingsStatus, onOpenSettings }) => {
+export const Header: React.FC<HeaderProps> = ({ settingsStatus, serviceAuthorized, onServiceLogin, onServiceLogout, onOpenSettings }) => {
   const getStatusLabel = () => {
     if (!settingsStatus) return { text: 'Проверка...', color: 'bg-gray-400' };
     switch (settingsStatus.connectionStatus) {
@@ -36,20 +39,39 @@ export const Header: React.FC<HeaderProps> = ({ settingsStatus, onOpenSettings }
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <a
-            href="/admin"
-            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label="Служебная страница"
-          >
-            📋 Отчёты
-          </a>
-          <button
-            onClick={onOpenSettings}
-            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label="Открыть настройки"
-          >
-            ⚙️ Настройки
-          </button>
+          {serviceAuthorized ? (
+            <>
+              <a
+                href="/admin"
+                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="Служебная страница"
+              >
+                📋 Отчёты
+              </a>
+              <button
+                onClick={onOpenSettings}
+                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="Открыть настройки"
+              >
+                ⚙️ Настройки
+              </button>
+              <button
+                onClick={onServiceLogout}
+                className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="Выйти из служебного режима"
+              >
+                Выйти
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={onServiceLogin}
+              className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Служебный вход"
+            >
+              🔐 Служебный вход
+            </button>
+          )}
         </div>
       </div>
     </header>

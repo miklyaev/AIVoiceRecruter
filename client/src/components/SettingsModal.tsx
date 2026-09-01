@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import type { SettingsStatus } from '../types';
 import * as api from '../services/api';
+import type { AppMode } from './InterviewControls';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   settingsStatus: SettingsStatus | null;
   onUpdate: () => void;
+  mode: AppMode;
+  onModeChange: (mode: AppMode) => void;
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settingsStatus, onUpdate }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settingsStatus, onUpdate, mode, onModeChange }) => {
   const [apiKey, setApiKey] = useState('');
   const [baseUrl, setBaseUrl] = useState('https://routerai.ru/api/v1');
   const [saving, setSaving] = useState(false);
@@ -95,6 +98,39 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
             <p className="text-gray-500">Base URL: <span className="text-gray-700">{settingsStatus.baseUrl}</span></p>
           </div>
         )}
+
+        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+          <p className="text-sm font-medium text-gray-700 mb-2">Режим работы приложения</p>
+          <div className="flex gap-2" role="radiogroup" aria-label="Режим работы приложения">
+            <button
+              type="button"
+              onClick={() => onModeChange('work')}
+              role="radio"
+              aria-checked={mode === 'work'}
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                mode === 'work' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
+              }`}
+            >
+              🎙️ Work — распознавание речи
+            </button>
+            <button
+              type="button"
+              onClick={() => onModeChange('debug')}
+              role="radio"
+              aria-checked={mode === 'debug'}
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                mode === 'debug' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
+              }`}
+            >
+              🐛 Debug — текстовый ввод
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            {mode === 'work'
+              ? 'Ответы кандидата распознаются из речи (микрофон).'
+              : 'Появляется поле ручного ввода текста ответа в обход распознавания речи — для интеграционного тестирования.'}
+          </p>
+        </div>
 
         <div className="space-y-3">
           <div>

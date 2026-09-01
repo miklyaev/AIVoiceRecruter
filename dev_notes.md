@@ -243,3 +243,31 @@ npm run migrate   # локально
 
 ### Проверка
 - `npm run build` в `server/` прошёл без ошибок, `dist/migrate.js` создан
+
+## 01.09.2026 — Служебный вход и debug-режим для интеграционного тестирования
+
+### Цель
+- Убрать с главной формы меню «Отчёты» и «Настройки», заменить на единый «Служебный вход» по логину/паролю
+- Добавить поле ручного ввода текста ответа кандидата (в обход STT) для ручного интеграционного тестирования — видимое только в режиме `debug`
+
+### Backend
+- **server/src/schemas/index.ts**: добавлена `TextAnswerSchema` (текст 1–5000 символов)
+- **server/src/services/interview.ts**: из `processAnswer` вынесена логика обработки распознанного текста в новую `processTranscript(interviewId, transcript)` — `processAnswer` = STT + `processTranscript`, поведение аудио-пути не изменилось
+- **server/src/routes/interviews.ts**: новый роут `POST /api/interviews/:id/answers/text` (JSON `{ text }`) — текстовый ответ в обход STT
+
+### Frontend — служебный вход
+- **client/src/components/ServiceLoginModal.tsx** (новый): модальное окно входа, проверка через `GET /api/admin/candidates` с Basic Auth (`ADMIN_LOGIN`/`ADMIN_PASSWORD`)
+- **client/src/components/Header.tsx**: без входа — одна кнопка «🔐 Служебный вход»; после входа — «📋 Отчёты», «⚙️ Настройки», «Выйти»
+- **client/src/App.tsx**: состояние служебного входа в `sessionStorage` (ключ `serviceAuth`, сбрасывается при закрытии вкладки); при выходе режим сбрасывается на `work`
+- **client/src/components/AdminPage.tsx**: автовход на `/admin` при активном служебном входе (без повторного ввода пароля)
+
+### Frontend — режимы work/debug
+- **client/src/components/InterviewControls.tsx**: новый проп `mode` (`work` | `debug`); в `debug` при состоянии `ASKING` показывается поле ввода текста + кнопка «Ответить» (кнопки записи с микрофона скрыты); в `work` — прежнее поведение с микрофоном
+- **client/src/components/SettingsModal.tsx**: переключатель режимов work/debug (radiogroup) — доступен только после служебного входа
+- **client/src/App.tsx**: режим по умолчанию всегда `work`, при каждой загрузке страницы сбрасывается (не персистится)
+- **client/src/hooks/useInterview.ts**: общая обработка результата ответа вынесена в `applyAnswerResult`, добавлена `sendTextResponse(text)`
+- **client/src/services/api.ts**: добавлена `sendTextAnswer(interviewId, text)`
+
+### Проверка
+- `npm run build` и `npm test` (26/26) в `server/` — без ошибок; `npm run build` в `client/` — без ошибок
+- В браузере проверено: неверный пароль → 401; верный → кнопки «Отчёты»/«Настройки»/«Выйти»; debug-режим — текстовый ответ принят, LLM задал следующий вопрос; переключение на work — поле скрылось, появилась кнопка записи; перезагрузка — режим сброшен на work; `/admin` — автовход; «Выйти» — возврат к «Служебному входу»

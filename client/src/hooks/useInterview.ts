@@ -90,13 +90,15 @@ export function useInterview(): UseInterviewReturn {
       setSettingsStatus(status);
       if (!status.configured) {
         setState('API_KEY_REQUIRED');
-      } else if (state === 'INITIAL' || state === 'API_KEY_REQUIRED') {
-        setState('READY');
+      } else {
+        // Функциональный апдейт: не перезаписываем состояние, установленное
+        // параллельным восстановлением интервью из localStorage (ASKING/COMPLETED)
+        setState(prev => (prev === 'INITIAL' || prev === 'API_KEY_REQUIRED') ? 'READY' : prev);
       }
     } catch {
       setState('API_KEY_REQUIRED');
     }
-  }, [state]);
+  }, []);
 
   const startInterview = useCallback(async () => {
     if (!selectedRole || !candidateValid || isProcessingRef.current) return;

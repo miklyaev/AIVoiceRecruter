@@ -35,6 +35,10 @@ export const Header: React.FC<HeaderProps> = ({ settingsStatus, appMode, service
           <h1 className="text-xl font-bold text-gray-900">
             🎙️ Голосовой AI-рекрутер
           </h1>
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-gray-50 border border-gray-200">
+            <span className={`w-2 h-2 rounded-full ${status.color}`} />
+            <span className="text-gray-600">{status.text}</span>
+          </div>
           {appMode === 'debug' && (
             <span
               className="px-2 py-1 rounded-full text-xs font-bold text-red-600 bg-red-50 border border-red-300"
@@ -43,10 +47,6 @@ export const Header: React.FC<HeaderProps> = ({ settingsStatus, appMode, service
               DEBUG
             </span>
           )}
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-gray-50 border border-gray-200">
-            <span className={`w-2 h-2 rounded-full ${status.color}`} />
-            <span className="text-gray-600">{status.text}</span>
-          </div>
         </div>
         <div className="flex items-center gap-2">
           {serviceAuthorized ? (

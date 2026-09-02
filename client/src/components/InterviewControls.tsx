@@ -59,7 +59,7 @@ export const InterviewControls: React.FC<InterviewControlsProps> = ({
         <div className="w-full max-w-md border-2 border-red-500 bg-red-50 rounded-lg px-4 py-3 flex items-start gap-3">
           <span className="text-2xl" aria-hidden="true">⚠️</span>
           <p className="text-sm text-red-700 text-left font-medium">
-            Для корректного распознавания ответа, отвечать нужно чётко и внятно. Английские слова необходимо произносить в правильной транскрипции. Большие паузы в речи делать не рекомендуется.
+            Для корректного распознавания ответа, говорить нужно громко и внятно. Английские слова необходимо произносить в правильной транскрипции. Большие паузы в речи делать не рекомендуется.
           </p>
         </div>
       )}

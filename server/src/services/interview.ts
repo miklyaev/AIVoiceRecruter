@@ -7,18 +7,18 @@ import { buildSystemPrompt } from '../prompts/common';
 import { PYTHON_DEVELOPER_PROMPT } from '../prompts/python-developer';
 import { SALES_MANAGER_PROMPT } from '../prompts/sales-manager';
 import { HR_MANAGER_PROMPT } from '../prompts/hr-manager';
-import { MARKETER_PROMPT } from '../prompts/marketer';
+import { CPP_DEVELOPER_PROMPT } from '../prompts/cpp-developer';
 import { ANALYST_PROMPT } from '../prompts/analyst';
 import { CSHARP_DEVELOPER_PROMPT } from '../prompts/csharp-developer';
 import { LLMResponseSchema } from '../schemas';
 
 const ROLE_PROMPTS: Record<string, string> = {
-  'python-developer': PYTHON_DEVELOPER_PROMPT,
-  'sales-manager': SALES_MANAGER_PROMPT,
-  'hr-manager': HR_MANAGER_PROMPT,
-  'marketer': MARKETER_PROMPT,
-  'analyst': ANALYST_PROMPT,
   'csharp-developer': CSHARP_DEVELOPER_PROMPT,
+  'cpp-developer': CPP_DEVELOPER_PROMPT,
+  'python-developer': PYTHON_DEVELOPER_PROMPT,
+  'analyst': ANALYST_PROMPT,
+  'hr-manager': HR_MANAGER_PROMPT,
+  'sales-manager': SALES_MANAGER_PROMPT,
 };
 
 const MIN_QUESTIONS = parseInt(process.env.INTERVIEW_MIN_QUESTIONS || '5');

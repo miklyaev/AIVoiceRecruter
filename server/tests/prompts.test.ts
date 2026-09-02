@@ -3,7 +3,7 @@ import { COMMON_SYSTEM_PROMPT, buildSystemPrompt } from '../src/prompts/common';
 import { PYTHON_DEVELOPER_PROMPT } from '../src/prompts/python-developer';
 import { SALES_MANAGER_PROMPT } from '../src/prompts/sales-manager';
 import { HR_MANAGER_PROMPT } from '../src/prompts/hr-manager';
-import { MARKETER_PROMPT } from '../src/prompts/marketer';
+import { CPP_DEVELOPER_PROMPT } from '../src/prompts/cpp-developer';
 import { ANALYST_PROMPT } from '../src/prompts/analyst';
 import { CSHARP_DEVELOPER_PROMPT } from '../src/prompts/csharp-developer';
 
@@ -24,7 +24,7 @@ describe('Prompts', () => {
     expect(PYTHON_DEVELOPER_PROMPT).toContain('Python');
     expect(SALES_MANAGER_PROMPT).toContain('продажам');
     expect(HR_MANAGER_PROMPT).toContain('HR');
-    expect(MARKETER_PROMPT).toContain('Маркетолог');
+    expect(CPP_DEVELOPER_PROMPT).toContain('C++');
     expect(ANALYST_PROMPT).toContain('Аналитика');
     expect(CSHARP_DEVELOPER_PROMPT).toContain('C#');
   });

@@ -1,29 +1,29 @@
 import crypto from 'crypto';
 
 export const ROLES = {
+  'csharp-developer': {
+    id: 'csharp-developer',
+    title: 'C#-разработчик',
+  },
+  'cpp-developer': {
+    id: 'cpp-developer',
+    title: 'C++-разработчик',
+  },
   'python-developer': {
     id: 'python-developer',
     title: 'Python-разработчик',
-  },
-  'sales-manager': {
-    id: 'sales-manager',
-    title: 'Менеджер по продажам',
-  },
-  'hr-manager': {
-    id: 'hr-manager',
-    title: 'HR-менеджер',
-  },
-  'marketer': {
-    id: 'marketer',
-    title: 'Маркетолог',
   },
   'analyst': {
     id: 'analyst',
     title: 'Аналитик',
   },
-  'csharp-developer': {
-    id: 'csharp-developer',
-    title: 'C#-разработчик',
+  'hr-manager': {
+    id: 'hr-manager',
+    title: 'HR-менеджер',
+  },
+  'sales-manager': {
+    id: 'sales-manager',
+    title: 'Менеджер по продажам',
   },
 } as const;
 

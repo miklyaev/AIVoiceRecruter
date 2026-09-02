@@ -11,12 +11,12 @@ export const PHONE_NUMBER_REGEX = /^\+7-\d{3}-\d{3}-\d{2}-\d{2}$/;
 
 export const CreateInterviewSchema = z.object({
   role: z.enum([
-    'python-developer',
-    'sales-manager',
-    'hr-manager',
-    'marketer',
-    'analyst',
     'csharp-developer',
+    'cpp-developer',
+    'python-developer',
+    'analyst',
+    'hr-manager',
+    'sales-manager',
   ]),
   name: z.string().trim().min(1, 'Имя обязательно'),
   email: z.string().trim().email('Некорректный email'),

@@ -16,6 +16,26 @@ describe('Roles', () => {
     expect(ROLES['csharp-developer'].title).toBe('C#-разработчик');
   });
 
+  it('должен содержать cpp-developer', () => {
+    expect(ROLES['cpp-developer']).toBeDefined();
+    expect(ROLES['cpp-developer'].title).toBe('C++-разработчик');
+  });
+
+  it('не должен содержать marketer', () => {
+    expect(ROLES['marketer' as keyof typeof ROLES]).toBeUndefined();
+  });
+
+  it('порядок должностей соответствует требованию', () => {
+    expect(Object.keys(ROLES)).toEqual([
+      'csharp-developer',
+      'cpp-developer',
+      'python-developer',
+      'analyst',
+      'hr-manager',
+      'sales-manager',
+    ]);
+  });
+
   it('должен возвращать заголовок роли', () => {
     expect(getRoleTitle('python-developer')).toBe('Python-разработчик');
     expect(getRoleTitle('csharp-developer')).toBe('C#-разработчик');

@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import type { AdminCandidateItem, Role } from '../types';
+
+type SortKey = 'name' | 'role';
+type SortDirection = 'asc' | 'desc';
 
 const getRecommendationBadge = (candidate: AdminCandidateItem): { text: string; className: string } => {
   if (!candidate.interviewCompleted) {
@@ -40,6 +43,47 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
   candidates, roles, roleFilter, hiringFilter,
   onRoleFilterChange, onHiringFilterChange, onSelectCandidate, loading,
 }) => {
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedCandidates = useMemo(() => {
+    if (!sortKey) return candidates;
+    const factor = sortDirection === 'asc' ? 1 : -1;
+    return [...candidates].sort((a, b) =>
+      a[sortKey].localeCompare(b[sortKey], 'ru') * factor
+    );
+  }, [candidates, sortKey, sortDirection]);
+
+  const renderSortHeader = (key: SortKey, label: string) => {
+    const isActive = sortKey === key;
+    const arrow = isActive ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : '';
+    return (
+      <th
+        className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600"
+        aria-sort={isActive ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
+      >
+        <button
+          type="button"
+          onClick={() => toggleSort(key)}
+          className={`inline-flex items-center gap-1 uppercase tracking-wider hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded ${isActive ? 'text-gray-900' : ''}`}
+          aria-label={`Сортировать по полю ${label}`}
+        >
+          {label}
+          <span aria-hidden="true">{arrow || ' ↕'}</span>
+        </button>
+      </th>
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-3">
@@ -81,10 +125,10 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-100 text-left border-b-2 border-gray-300">
-              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600">Имя</th>
+              {renderSortHeader('name', 'Имя')}
               <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600">Email</th>
               <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600">Телефон</th>
-              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600">Должность</th>
+              {renderSortHeader('role', 'Должность')}
               <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600">Опыт</th>
               <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600">Рекомендация</th>
             </tr>
@@ -100,7 +144,7 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
                 <td colSpan={6} className="px-4 py-6 text-center text-gray-500">Кандидатов не найдено.</td>
               </tr>
             )}
-            {!loading && candidates.map((c) => {
+            {!loading && sortedCandidates.map((c) => {
               const badge = getRecommendationBadge(c);
               return (
                 <tr

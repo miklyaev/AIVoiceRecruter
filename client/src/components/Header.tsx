@@ -41,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({ settingsStatus, appMode, service
           </div>
           {appMode === 'debug' && (
             <span
-              className="px-2 py-1 rounded-full text-xs font-bold text-red-600 bg-red-50 border border-red-300"
+              className="px-2 py-1 -ml-[3px] rounded-full text-xs font-bold text-red-600 bg-red-50 border border-red-300"
               aria-label="Активен режим отладки"
             >
               DEBUG

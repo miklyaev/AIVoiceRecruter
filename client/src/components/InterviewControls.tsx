@@ -34,12 +34,23 @@ export const InterviewControls: React.FC<InterviewControlsProps> = ({
 
   const showStartHint = selectedRole && (state === 'READY' || state === 'API_KEY_REQUIRED' || state === 'STARTING');
 
-  const handleDebugSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const submitDebugAnswer = () => {
     const text = debugAnswer.trim();
     if (!text) return;
     setDebugAnswer('');
     onTextAnswer(text);
+  };
+
+  const handleDebugSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submitDebugAnswer();
+  };
+
+  const handleDebugKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submitDebugAnswer();
+    }
   };
 
   return (
@@ -48,7 +59,7 @@ export const InterviewControls: React.FC<InterviewControlsProps> = ({
         <div className="w-full max-w-md border-2 border-red-500 bg-red-50 rounded-lg px-4 py-3 flex items-start gap-3">
           <span className="text-2xl" aria-hidden="true">⚠️</span>
           <p className="text-sm text-red-700 text-left font-medium">
-            Отвечать нужно внятно и желательно без запинок, чтобы было корректное распознавание ответа. Английские слова необходимо говорить в правильной транскрипции. Большие паузы в речи делать не рекомендуется.
+            Для корректного распознавания ответа, отвечать нужно чётко и внятно. Английские слова необходимо произносить в правильной транскрипции. Большие паузы в речи делать не рекомендуется.
           </p>
         </div>
       )}
@@ -75,17 +86,18 @@ export const InterviewControls: React.FC<InterviewControlsProps> = ({
         )}
 
         {isDebug && state === 'ASKING' && (
-          <form onSubmit={handleDebugSubmit} className="w-full max-w-md flex gap-2">
+          <form onSubmit={handleDebugSubmit} className="w-full pl-5 flex gap-2 items-end">
             <label htmlFor="debug-answer" className="sr-only">
               Текст ответа кандидата
             </label>
-            <input
+            <textarea
               id="debug-answer"
-              type="text"
+              rows={3}
               value={debugAnswer}
               onChange={(e) => setDebugAnswer(e.target.value)}
+              onKeyDown={handleDebugKeyDown}
               placeholder="Ответ кандидата (без распознавания речи)"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-y"
               autoComplete="off"
             />
             <button

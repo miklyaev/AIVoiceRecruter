@@ -1,6 +1,22 @@
 import React from 'react';
 import type { AdminCandidateItem, Role } from '../types';
 
+const getRecommendationBadge = (candidate: AdminCandidateItem): { text: string; className: string } => {
+  if (!candidate.interviewCompleted) {
+    return { text: 'Не завершено', className: 'bg-gray-100 text-gray-500 border-gray-200' };
+  }
+  switch (candidate.hiringRecommendation) {
+    case 'рекомендуется к найму':
+      return { text: candidate.hiringRecommendation, className: 'bg-green-50 text-green-700 border-green-200' };
+    case 'можно рассмотреть':
+      return { text: candidate.hiringRecommendation, className: 'bg-amber-50 text-amber-700 border-amber-200' };
+    case 'пока не рекомендуется':
+      return { text: candidate.hiringRecommendation, className: 'bg-red-50 text-red-700 border-red-200' };
+    default:
+      return { text: '—', className: 'bg-gray-50 text-gray-400 border-gray-200' };
+  }
+};
+
 const HIRING_OPTIONS = [
   { value: '', label: 'Все рекомендации' },
   { value: 'рекомендуется к найму', label: 'Рекомендуется к найму' },
@@ -61,16 +77,16 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-md overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200 text-left text-gray-500">
-              <th className="px-4 py-3 font-medium">Имя</th>
-              <th className="px-4 py-3 font-medium">Email</th>
-              <th className="px-4 py-3 font-medium">Телефон</th>
-              <th className="px-4 py-3 font-medium">Должность</th>
-              <th className="px-4 py-3 font-medium">Опыт</th>
-              <th className="px-4 py-3 font-medium">Рекомендация</th>
+            <tr className="bg-gray-100 text-left border-b-2 border-gray-300">
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600">Имя</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600">Email</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600">Телефон</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600">Должность</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600">Опыт</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600">Рекомендация</th>
             </tr>
           </thead>
           <tbody>
@@ -84,22 +100,27 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
                 <td colSpan={6} className="px-4 py-6 text-center text-gray-500">Кандидатов не найдено.</td>
               </tr>
             )}
-            {!loading && candidates.map((c) => (
-              <tr
-                key={c.id}
-                onClick={() => onSelectCandidate(c)}
-                className="border-b border-gray-100 last:border-0 hover:bg-gray-50 cursor-pointer"
-              >
-                <td className="px-4 py-3 font-medium text-gray-900">{c.name}</td>
-                <td className="px-4 py-3 text-gray-600">{c.email}</td>
-                <td className="px-4 py-3 text-gray-600">{c.phoneNumber}</td>
-                <td className="px-4 py-3 text-gray-600">{c.role}</td>
-                <td className="px-4 py-3 text-gray-600">{c.experiance}</td>
-                <td className="px-4 py-3 text-gray-600">
-                  {c.hiringRecommendation || (c.interviewCompleted ? '—' : 'Собеседование не завершено')}
-                </td>
-              </tr>
-            ))}
+            {!loading && candidates.map((c) => {
+              const badge = getRecommendationBadge(c);
+              return (
+                <tr
+                  key={c.id}
+                  onClick={() => onSelectCandidate(c)}
+                  className="border-b border-gray-100 last:border-0 odd:bg-white even:bg-gray-50/60 hover:bg-blue-50 cursor-pointer transition-colors"
+                >
+                  <td className="px-4 py-3 font-medium text-gray-900">{c.name}</td>
+                  <td className="px-4 py-3 text-gray-600">{c.email}</td>
+                  <td className="px-4 py-3 text-gray-600">{c.phoneNumber}</td>
+                  <td className="px-4 py-3 text-gray-600">{c.role}</td>
+                  <td className="px-4 py-3 text-gray-600">{c.experiance}</td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${badge.className}`}>
+                      {badge.text}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

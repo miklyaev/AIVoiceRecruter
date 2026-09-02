@@ -96,8 +96,8 @@ INTERVIEW_TARGET_QUESTIONS=7
 INTERVIEW_MAX_QUESTIONS=10
 
 # Служебная страница с отчётами (/admin)
-ADMIN_LOGIN=admin
-ADMIN_PASSWORD=admin123
+ADMIN_LOGIN=login
+ADMIN_PASSWORD=password
 ```
 
 ## Запуск

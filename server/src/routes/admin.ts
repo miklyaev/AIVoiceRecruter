@@ -7,7 +7,7 @@ const router = Router();
 // Basic Auth middleware — проверяет логин/пароль из server/.env
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const login = process.env.ADMIN_LOGIN || 'admin';
-  const password = process.env.ADMIN_PASSWORD || 'admin123';
+  const password = process.env.ADMIN_PASSWORD;
 
   const authHeader = req.headers.authorization || '';
   const [scheme, encoded] = authHeader.split(' ');

@@ -49,6 +49,41 @@ describe('LLM Response Schema', () => {
     })).toThrow();
   });
 
+  it('должен валидировать отчёт с нулевой оценкой при недостатке данных', () => {
+    const result = LLMResponseSchema.parse({
+      type: 'final',
+      recruiterMessage: 'Спасибо.',
+      shouldFinish: true,
+      report: {
+        overallScore: 0,
+        strengths: [],
+        weaknesses: ['Интервью завершено до проверки ключевых компетенций'],
+        developmentRecommendations: [],
+        hiringRecommendation: 'пока не рекомендуется',
+        recommendationReason: 'Данных недостаточно для оценки',
+        insufficientData: true,
+      },
+    });
+    expect(result.type).toBe('final');
+    expect((result as any).report.overallScore).toBe(0);
+  });
+
+  it('должен отклонять отрицательную оценку', () => {
+    expect(() => LLMResponseSchema.parse({
+      type: 'final',
+      recruiterMessage: 'Спасибо.',
+      shouldFinish: true,
+      report: {
+        overallScore: -1,
+        strengths: [], weaknesses: [],
+        developmentRecommendations: [],
+        hiringRecommendation: 'можно рассмотреть',
+        recommendationReason: 'test',
+        insufficientData: false,
+      },
+    })).toThrow();
+  });
+
   it('должен отклонять оценку вне диапазона', () => {
     expect(() => LLMResponseSchema.parse({
       type: 'final',

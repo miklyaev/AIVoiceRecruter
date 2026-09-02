@@ -44,7 +44,7 @@ export const QuestionSchema = z.object({
 });
 
 export const ReportSchema = z.object({
-  overallScore: z.number().min(1).max(10),
+  overallScore: z.number().min(0).max(10),
   strengths: z.array(z.string()),
   weaknesses: z.array(z.string()),
   developmentRecommendations: z.array(z.string()),

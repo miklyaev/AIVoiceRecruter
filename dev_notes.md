@@ -332,9 +332,19 @@ npm run migrate   # локально
 - **server/src/services/interview.ts**: константа `FINAL_MESSAGE` — «Спасибо за ответы. Интервью завершено. На служебной странице — итоговая оценка по обсуждённым темам.»; текст жёстко возвращается в обоих путях завершения вместо формулировки LLM: ветка `final` в `generateQuestion` и `finishInterview` (включая запись сообщения в БД); JSON-примеры в промптах синхронизированы
 - **e2e/mock-server.ts**: финальное сообщение mock-сервера синхронизировано с `FINAL_MESSAGE`
 
-### Замечено при проверке (не исправлено)
-- `finishInterview` для интервью без единого ответа падает 500: LLM возвращает `overallScore: 0`, а `ReportSchema` требует минимум 1 — существующее ограничение схемы, не связано с правкой
-
 ### Проверка
 - `npm run build` и `npm test` (29/29) в `server/`, `npm run build` в `client/` — без ошибок
 - Вживую через API: создание интервью → текстовый ответ → `POST /finish` → `recruiterMessage` содержит точный текст `FINAL_MESSAGE`
+
+## 02.09.2026 — Фикс: отчёт с нулевой оценкой при досрочном завершении без ответов
+
+### Проблема
+- `POST /finish` для интервью без единого ответа падал 500: LLM законно возвращал `overallScore: 0` + `insufficientData: true`, а `ReportSchema` требовала `min(1)` — 3 попытки исчерпывались, отчёт не сохранялся
+
+### Что сделано
+- **server/src/schemas/index.ts**: `ReportSchema.overallScore` — `min(1)` → `min(0)`; ноль легитимен при недостатке данных, фронтенд отображает `0/10` красным + предупреждение `insufficientData`
+- **server/tests/schemas.test.ts**: +2 теста — отчёт с `overallScore: 0` + `insufficientData: true` валидируется; отрицательная оценка отклоняется
+
+### Проверка
+- `npm run build` и `npm test` (31/31) в `server/` — без ошибок
+- Вживую: создание интервью → немедленный `POST /finish` (ноль ответов) → HTTP 200, отчёт `overallScore: 0`, `insufficientData: true`, `hiringRecommendation` «пока не рекомендуется», `recruiterMessage` = `FINAL_MESSAGE`

@@ -81,7 +81,8 @@ const server = http.createServer((req, res) => {
                 message: {
                   content: JSON.stringify({
                     type: 'final',
-                    recruiterMessage: 'Интервью завершено. Спасибо за ответы!',
+                    recruiterMessage:
+                      'Спасибо за ответы. Интервью завершено. На служебной странице — итоговая оценка по обсуждённым темам.',
                     shouldFinish: true,
                     report: buildReport(),
                   }),

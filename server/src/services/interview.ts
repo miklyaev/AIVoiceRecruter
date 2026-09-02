@@ -25,6 +25,10 @@ const MIN_QUESTIONS = parseInt(process.env.INTERVIEW_MIN_QUESTIONS || '5');
 const TARGET_QUESTIONS = parseInt(process.env.INTERVIEW_TARGET_QUESTIONS || '7');
 const MAX_QUESTIONS = parseInt(process.env.INTERVIEW_MAX_QUESTIONS || '10');
 
+// Fixed farewell: the report is shown on the admin page, not below in the chat
+const FINAL_MESSAGE =
+  'Спасибо за ответы. Интервью завершено. На служебной странице — итоговая оценка по обсуждённым темам.';
+
 export async function createInterview(role: string) {
   const id = generateId();
   await query(
@@ -89,7 +93,7 @@ export async function generateQuestion(role: string, messages: any[], questionNu
 2. Если интервью завершено (вопрос №${questionNumber} > ${MAX_QUESTIONS}):
 {
   "type": "final",
-  "recruiterMessage": "текст завершения",
+  "recruiterMessage": "${FINAL_MESSAGE}",
   "shouldFinish": true,
   "report": {
     "overallScore": 7,
@@ -139,7 +143,7 @@ export async function generateQuestion(role: string, messages: any[], questionNu
         };
       } else {
         return {
-          recruiterMessage: validated.recruiterMessage,
+          recruiterMessage: FINAL_MESSAGE,
           shouldFinish: true,
           report: validated.report,
         };
@@ -354,7 +358,7 @@ export async function finishInterview(
       content: `Интервью завершено досрочно. Сформируй итоговый отчёт на основании полученных ответов. Ответь строго в JSON:
 {
   "type": "final",
-  "recruiterMessage": "текст завершения",
+  "recruiterMessage": "${FINAL_MESSAGE}",
   "shouldFinish": true,
   "report": {
     "overallScore": 7,
@@ -404,10 +408,10 @@ export async function finishInterview(
       const msgId = generateId();
       await query(
         'INSERT INTO messages (id, interview_id, role, text, message_type) VALUES ($1, $2, $3, $4, $5)',
-        [msgId, interviewId, 'assistant', validated.recruiterMessage, 'final']
+        [msgId, interviewId, 'assistant', FINAL_MESSAGE, 'final']
       );
 
-      return { report: validated.report, recruiterMessage: validated.recruiterMessage };
+      return { report: validated.report, recruiterMessage: FINAL_MESSAGE };
     } catch (err: any) {
       lastError = err;
       llmMessages.push({

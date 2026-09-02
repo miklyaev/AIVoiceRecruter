@@ -38,6 +38,10 @@ export async function testSettings(): Promise<{ connected: boolean; message: str
   return request('/settings/test', { method: 'POST' });
 }
 
+export async function clearAudio(): Promise<{ deleted: number; message: string }> {
+  return request('/settings/audio/clear', { method: 'POST' });
+}
+
 export async function getRoles(): Promise<Role[]> {
   return request('/roles');
 }

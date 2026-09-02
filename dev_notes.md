@@ -347,4 +347,16 @@ npm run migrate   # локально
 
 ### Проверка
 - `npm run build` и `npm test` (31/31) в `server/` — без ошибок
+- Вживую: создание интервью → немедленный `POST /finish` (нуль ответов) → HTTP 200, отчёт `overallScore: 0`, `insufficientData: true`, `hiringRecommendation` «пока не рекомендуется», `recruiterMessage` = `FINAL_MESSAGE`
+
+## 02.09.2026 — Кнопка «Очистить папку с аудио» в настройках
+
+### Что сделано
+- **server/src/routes/settings.ts**: новый роут `POST /api/settings/audio/clear` — удаляет все `*.mp3` из `server/audio`, возвращает `{ deleted, message }`; при отсутствии папки возвращает `deleted: 0`
+- **client/src/services/api.ts**: функция `clearAudio()`
+- **client/src/components/SettingsModal.tsx**: блок «Папка с аудио» с кнопкой «Очистить папку с аудио» — расположен между «Режимом работы приложения» и «API Base URL»; подтверждение через `window.confirm`, результат показывается в общем блоке `message` («Аудифайлы удалены (N шт.)»)
+
+### Проверка
+- `npm run build` и `npm test` (31/31) в `server/`, `npm run build` в `client/` — без ошибок
+- Вживую: `POST /api/settings/audio/clear` удалил 122 файла; кнопка в модалке настроек удалила тестовый файл, сообщение «Аудифайлы удалены (1 шт.)» отображается
 - Вживую: создание интервью → немедленный `POST /finish` (ноль ответов) → HTTP 200, отчёт `overallScore: 0`, `insufficientData: true`, `hiringRecommendation` «пока не рекомендуется», `recruiterMessage` = `FINAL_MESSAGE`

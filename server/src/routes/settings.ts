@@ -1,4 +1,6 @@
 import { Router, Request, Response } from 'express';
+import fs from 'fs';
+import path from 'path';
 import { query } from '../db';
 import { encrypt, decrypt, maskKey, EncryptedData } from '../services/encryption';
 import { getConfig, testConnection } from '../services/routerai';
@@ -96,6 +98,29 @@ router.delete('/routerai', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('Settings delete error:', err);
     return res.status(500).json({ error: 'Ошибка удаления ключа' });
+  }
+});
+
+// POST /api/settings/audio/clear
+router.post('/audio/clear', async (req: Request, res: Response) => {
+  try {
+    const audioDir = path.join(__dirname, '..', '..', 'audio');
+    if (!fs.existsSync(audioDir)) {
+      return res.json({ deleted: 0, message: 'Аудифайлы удалены' });
+    }
+
+    let deleted = 0;
+    for (const file of fs.readdirSync(audioDir)) {
+      if (file.endsWith('.mp3')) {
+        fs.unlinkSync(path.join(audioDir, file));
+        deleted++;
+      }
+    }
+
+    return res.json({ deleted, message: 'Аудифайлы удалены' });
+  } catch (err) {
+    console.error('Audio clear error:', err);
+    return res.status(500).json({ error: 'Ошибка очистки папки с аудио' });
   }
 });
 

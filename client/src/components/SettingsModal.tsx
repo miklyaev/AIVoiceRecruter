@@ -17,6 +17,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
   const [baseUrl, setBaseUrl] = useState('https://routerai.ru/api/v1');
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [clearingAudio, setClearingAudio] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
@@ -54,6 +55,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
       setMessage({ type: 'error', text: err.message || 'Ошибка подключения' });
     } finally {
       setTesting(false);
+    }
+  };
+
+  const handleClearAudio = async () => {
+    if (!window.confirm('Удалить все mp3-файлы из папки с аудио?')) return;
+    setClearingAudio(true);
+    setMessage(null);
+    try {
+      const result = await api.clearAudio();
+      setMessage({ type: 'success', text: `Аудифайлы удалены (${result.deleted} шт.)` });
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || 'Ошибка очистки папки с аудио' });
+    } finally {
+      setClearingAudio(false);
     }
   };
 
@@ -130,6 +145,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
               ? 'Ответы кандидата распознаются из речи (микрофон).'
               : 'Появляется поле ручного ввода текста ответа в обход распознавания речи — для интеграционного тестирования.'}
           </p>
+        </div>
+
+        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+          <p className="text-sm font-medium text-gray-700 mb-2">Папка с аудио</p>
+          <button
+            type="button"
+            onClick={handleClearAudio}
+            disabled={clearingAudio}
+            className="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50"
+            aria-label="Очистить папку с аудио"
+          >
+            {clearingAudio ? 'Очистка...' : '🗑 Очистить папку с аудио'}
+          </button>
+          <p className="text-xs text-gray-500 mt-2">Удаляет все mp3-файлы озвучки из папки server/audio.</p>
         </div>
 
         <div className="space-y-3">

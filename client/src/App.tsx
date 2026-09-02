@@ -95,6 +95,7 @@ const App: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-100">
       <Header
         settingsStatus={settingsStatus}
+        appMode={appMode}
         serviceAuthorized={!!serviceAuth}
         onServiceLogin={() => setServiceLoginOpen(true)}
         onServiceLogout={handleServiceLogout}

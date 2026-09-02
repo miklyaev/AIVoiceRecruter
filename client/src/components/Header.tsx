@@ -1,15 +1,17 @@
 import React from 'react';
+import type { AppMode } from './InterviewControls';
 import type { SettingsStatus } from '../types';
 
 interface HeaderProps {
   settingsStatus: SettingsStatus | null;
+  appMode: AppMode;
   serviceAuthorized: boolean;
   onServiceLogin: () => void;
   onServiceLogout: () => void;
   onOpenSettings: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ settingsStatus, serviceAuthorized, onServiceLogin, onServiceLogout, onOpenSettings }) => {
+export const Header: React.FC<HeaderProps> = ({ settingsStatus, appMode, serviceAuthorized, onServiceLogin, onServiceLogout, onOpenSettings }) => {
   const getStatusLabel = () => {
     if (!settingsStatus) return { text: 'Проверка...', color: 'bg-gray-400' };
     switch (settingsStatus.connectionStatus) {
@@ -33,6 +35,14 @@ export const Header: React.FC<HeaderProps> = ({ settingsStatus, serviceAuthorize
           <h1 className="text-xl font-bold text-gray-900">
             🎙️ Голосовой AI-рекрутер
           </h1>
+          {appMode === 'debug' && (
+            <span
+              className="px-2 py-1 rounded-full text-xs font-bold text-red-600 bg-red-50 border border-red-300"
+              aria-label="Активен режим отладки"
+            >
+              DEBUG
+            </span>
+          )}
           <div className="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-gray-50 border border-gray-200">
             <span className={`w-2 h-2 rounded-full ${status.color}`} />
             <span className="text-gray-600">{status.text}</span>

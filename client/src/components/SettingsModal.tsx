@@ -114,7 +114,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
           </div>
         )}
 
-        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+        <div className="mb-1 p-3 bg-gray-50 rounded-lg">
           <p className="text-sm font-medium text-gray-700 mb-2">Режим работы приложения</p>
           <div className="flex gap-2" role="radiogroup" aria-label="Режим работы приложения">
             <button

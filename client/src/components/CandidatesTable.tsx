@@ -87,14 +87,15 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-gray-500">Для детального отчёта кликни по нужной строке</p>
+        <p className="mt-[7px] inline-flex items-center gap-1.5 text-sm text-gray-500 italic">
+          <span aria-hidden="true">👆</span>
+          Для детального отчёта кликни по нужной строке
+        </p>
         <div className="bg-gray-50 rounded-lg p-3 w-full sm:w-1/2">
           <p className="text-sm font-medium text-gray-700 mb-2">Фильтры</p>
           <div className="flex flex-wrap gap-3">
             <div className="flex-1 min-w-[140px]">
-              <label htmlFor="filter-role" className="block text-sm font-medium text-gray-700 mb-1">
-                Должность
-              </label>
+
               <select
                 id="filter-role"
                 value={roleFilter}
@@ -109,9 +110,7 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
             </div>
 
             <div className="flex-1 min-w-[140px]">
-              <label htmlFor="filter-hiring" className="block text-sm font-medium text-gray-700 mb-1">
-                Рекомендация
-              </label>
+
               <select
                 id="filter-hiring"
                 value={hiringFilter}

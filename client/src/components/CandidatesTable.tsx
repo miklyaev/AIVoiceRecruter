@@ -100,7 +100,7 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
                 id="filter-role"
                 value={roleFilter}
                 onChange={(e) => onRoleFilterChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-[6px] text-sm text-gray-500 italic border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Все должности</option>
                 {roles.map((role) => (
@@ -115,7 +115,7 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
                 id="filter-hiring"
                 value={hiringFilter}
                 onChange={(e) => onHiringFilterChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-[6px] text-sm text-gray-500 italic border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {HIRING_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>

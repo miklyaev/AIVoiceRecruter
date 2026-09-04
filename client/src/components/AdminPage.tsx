@@ -15,6 +15,7 @@ export const AdminPage: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState('');
   const [hiringFilter, setHiringFilter] = useState('');
   const [selectedCandidate, setSelectedCandidate] = useState<AdminCandidateDetail | null>(null);
+  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
 
@@ -84,6 +85,7 @@ export const AdminPage: React.FC = () => {
     setDetailError(null);
     setDetailLoading(true);
     setSelectedCandidate(null);
+    setSelectedCandidateId(candidate.id);
     try {
       const detail = await api.getAdminCandidateDetail(login, password, candidate.id);
       setSelectedCandidate(detail);
@@ -169,6 +171,7 @@ export const AdminPage: React.FC = () => {
           onHiringFilterChange={setHiringFilter}
           onSelectCandidate={handleSelectCandidate}
           loading={loading}
+          selectedCandidateId={selectedCandidateId}
         />
 
         {detailLoading && (

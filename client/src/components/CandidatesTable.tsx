@@ -37,11 +37,12 @@ interface CandidatesTableProps {
   onHiringFilterChange: (value: string) => void;
   onSelectCandidate: (candidate: AdminCandidateItem) => void;
   loading: boolean;
+  selectedCandidateId: string | null;
 }
 
 export const CandidatesTable: React.FC<CandidatesTableProps> = ({
   candidates, roles, roleFilter, hiringFilter,
-  onRoleFilterChange, onHiringFilterChange, onSelectCandidate, loading,
+  onRoleFilterChange, onHiringFilterChange, onSelectCandidate, loading, selectedCandidateId,
 }) => {
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -151,13 +152,23 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
             )}
             {!loading && sortedCandidates.map((c) => {
               const badge = getRecommendationBadge(c);
+              const isSelected = c.id === selectedCandidateId;
               return (
                 <tr
                   key={c.id}
                   onClick={() => onSelectCandidate(c)}
-                  className="border-b border-gray-100 last:border-0 odd:bg-white even:bg-gray-50/60 hover:bg-blue-50 cursor-pointer transition-colors"
+                  aria-selected={isSelected}
+                  className={`border-b border-gray-100 last:border-0 cursor-pointer transition-colors ${
+                    isSelected
+                      ? 'bg-blue-100 ring-1 ring-inset ring-blue-400'
+                      : 'odd:bg-white even:bg-gray-50/60 hover:bg-blue-50'
+                  }`
+                }
                 >
-                  <td className="px-4 py-3 font-medium text-gray-900">{c.name}</td>
+                  <td className={`px-4 py-3 ${isSelected ? 'font-semibold text-blue-900' : 'font-medium text-gray-900'}`}>
+                    {isSelected && <span aria-hidden="true" className="mr-1.5 text-blue-600">▶</span>}
+                    {c.name}
+                  </td>
                   <td className="px-4 py-3 text-gray-600">{c.email}</td>
                   <td className="px-4 py-3 text-gray-600">{c.phoneNumber}</td>
                   <td className="px-4 py-3 text-gray-600">{c.role}</td>

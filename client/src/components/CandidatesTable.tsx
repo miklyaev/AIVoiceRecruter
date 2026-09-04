@@ -87,7 +87,7 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="mt-[7px] inline-flex items-center gap-1.5 text-sm text-gray-500 italic">
+        <p className="mt-[17px] inline-flex items-center gap-1.5 text-sm text-gray-500 italic">
           <span aria-hidden="true">👆</span>
           Для детального отчёта кликни по нужной строке
         </p>
